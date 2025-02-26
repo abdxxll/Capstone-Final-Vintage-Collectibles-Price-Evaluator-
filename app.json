@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "HelloWorld",
-    "slug": "expo-template-default",
+    "name": "plutus-app",
+    "slug": "plutus-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -9,13 +9,15 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.datbihmad.plutusapp"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.datbihmad.plutusapp"
     },
     "web": {
       "bundler": "metro",
@@ -36,6 +38,18 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "a4029ae4-271b-4e18-97e7-ab211e746dfe"
+      }
+    },
+    "owner": "datbihmad",
+    "updates": {
+      "url": "https://u.expo.dev/a4029ae4-271b-4e18-97e7-ab211e746dfe"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
     }
   }
 }
