@@ -1,7 +1,9 @@
-import { Link } from "expo-router"; // Expo Router for navigation
-import { Image, Text, View } from "react-native";
+import { useRouter } from "expo-router";
+import React from "react";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 
-export default function Index() {
+const HomeScreen: React.FC = () => {
+  const router = useRouter();
 
   return (
     <View
@@ -16,14 +18,39 @@ export default function Index() {
         Plutus
       </Text>
       <Image
-        source={require("../assets/images/logo.png")} 
+        source={require("../assets/images/logo.png")}
         style={{ width: 100, height: 100, marginVertical: 20 }}
       />
-      <Link href={"/camera"} style={{ marginBottom: 20 }}>
-        <Text style={{ color: "#6A0DAD", fontSize: 16, fontWeight: "bold" }}>
-          Go to App
-        </Text>
-      </Link>
+      <TouchableOpacity
+        onPress={() => router.push("/inference")}
+        style={{
+          backgroundColor: "#8B3DFF",
+          paddingHorizontal: 20,
+          paddingVertical: 10,
+          borderRadius: 20,
+          minWidth: 120,
+          alignItems: "center",
+        }}
+      >
+        <Text style={{ color: "white", fontSize: 16 }}>Go to Inference</Text>
+      </TouchableOpacity>
+      <View style={{ marginTop: 20 }}>
+        <TouchableOpacity
+          onPress={() => router.push("/camera")}
+          style={{
+            backgroundColor: "#8B3DFF",
+            paddingHorizontal: 20,
+            paddingVertical: 10,
+            borderRadius: 20,
+            minWidth: 120,
+            alignItems: "center",
+          }}
+        >
+          <Text style={{ color: "white", fontSize: 16 }}>Go to App</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
-}
+};
+
+export default HomeScreen;
