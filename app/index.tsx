@@ -24,12 +24,14 @@ const HomeScreen: React.FC = () => {
       <TouchableOpacity
         onPress={() => router.push("/inference")}
         style={{
-          backgroundColor: "#8B3DFF",
+          backgroundColor: "#DFCEF3",
           paddingHorizontal: 20,
           paddingVertical: 10,
           borderRadius: 20,
           minWidth: 120,
           alignItems: "center",
+          borderWidth: 2, 
+          borderColor: "white", 
         }}
       >
         <Text style={{ color: "white", fontSize: 16 }}>Go to Inference</Text>
@@ -38,12 +40,14 @@ const HomeScreen: React.FC = () => {
         <TouchableOpacity
           onPress={() => router.push("/camera")}
           style={{
-            backgroundColor: "#8B3DFF",
+            backgroundColor: "##DFCEF3",
             paddingHorizontal: 20,
             paddingVertical: 10,
             borderRadius: 20,
             minWidth: 120,
             alignItems: "center",
+            borderWidth: 2, 
+            borderColor: "white", 
           }}
         >
           <Text style={{ color: "white", fontSize: 16 }}>Go to App</Text>
