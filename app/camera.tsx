@@ -26,7 +26,24 @@ export default function Camera() {
   const [recording, setRecording] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [inferenceResults, setInferenceResults] = useState<any>(null);
+  interface BoundingBox {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  }
+
+  interface Prediction {
+    confidence: number;
+    class: string;
+    bbox: BoundingBox;
+  }
+
+  interface InferenceResult {
+    predictions: Prediction[];
+  }
+
+  const [inferenceResults, setInferenceResults] = useState<InferenceResult | null>(null);
   const slideAnim = useRef(new Animated.Value(0)).current;
 
   const slideUp = () => {
@@ -62,7 +79,17 @@ export default function Camera() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(
+      // Convert image to base64
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+
+      const apiResponse = await fetch(
         "https://detect.roboflow.com/infer/workflows/sultup/detect-and-classify",
         {
           method: "POST",
@@ -72,17 +99,17 @@ export default function Camera() {
           body: JSON.stringify({
             api_key: "vAQ3rXRm1GwuSGX7fI0s",
             inputs: {
-              image: { type: "url", value: imageUri },
+              image: { type: "base64", value: base64.split(',')[1] },
             },
           }),
         }
       );
 
-      if (!response.ok) {
+      if (!apiResponse.ok) {
         throw new Error("Failed to process image");
       }
 
-      const result = await response.json();
+      const result = await apiResponse.json();
       setInferenceResults(result);
       slideUp();
     } catch (err) {
