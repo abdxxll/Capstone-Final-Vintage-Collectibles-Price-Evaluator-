@@ -43,7 +43,9 @@ export default function Camera() {
     predictions: Prediction[];
   }
 
+  // Add a new state to store just the detected class names
   const [inferenceResults, setInferenceResults] = useState<InferenceResult | null>(null);
+  const [detectedClass, setDetectedClass] = useState<string | null>(null);
   const slideAnim = useRef(new Animated.Value(0)).current;
 
   const slideUp = () => {
@@ -111,6 +113,18 @@ export default function Camera() {
 
       const result = await apiResponse.json();
       setInferenceResults(result);
+      
+      // Extract the class from the result - matches actual response structure
+      console.log("API Response:", JSON.stringify(result, null, 2));
+      if (result && 
+          result.outputs && 
+          result.outputs[0]?.predictions?.predictions && 
+          result.outputs[0].predictions.predictions.length > 0) {
+        setDetectedClass(result.outputs[0].predictions.predictions[0].class);
+      } else {
+        setDetectedClass("No object detected");
+      }
+      
       slideUp();
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
@@ -169,10 +183,10 @@ export default function Camera() {
             <AntDesign name="close" size={24} color="black" />
           </Pressable>
         </View>
-        {inferenceResults && (
+        {detectedClass && (
           <View style={styles.resultsContent}>
             <Text style={styles.resultText}>
-              {JSON.stringify(inferenceResults, null, 2)}
+              Detected: {detectedClass}
             </Text>
           </View>
         )}
@@ -200,6 +214,7 @@ export default function Camera() {
         <Button onPress={() => {
           setUri(null);
           setInferenceResults(null);
+          setDetectedClass(null);
           setError(null);
           slideDown();
         }} title="Take another picture" />
@@ -361,6 +376,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   resultText: {
-    fontSize: 14,
+    fontSize: 18,
+    fontWeight: "500",
   },
 });
