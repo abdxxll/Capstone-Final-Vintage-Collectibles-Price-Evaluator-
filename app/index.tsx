@@ -1,3 +1,4 @@
+import AntDesign from '@expo/vector-icons/AntDesign';
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -50,7 +51,7 @@ const HomeScreen = () => {
         <Text style={{ fontSize: 20, fontWeight: "bold", color: COLORS.white }}>PLUTUS AI</Text>
         <TouchableOpacity
           onPress={() => router.push("/profile")}
-          style={{ backgroundColor: COLORS.imperialPurple, padding: 8, borderRadius: 50 }}
+          style={{ backgroundColor: COLORS.obsidianBlack, padding: 8, borderRadius: 50 }}
         >
           <IconUser />
         </TouchableOpacity>
@@ -68,10 +69,10 @@ const HomeScreen = () => {
             onPress={() => router.push("/camera")}
             activeOpacity={0.8}
             style={{
-              width: 90,
-              height: 90,
+              width: 150,
+              height: 150,
               borderRadius: 45,
-              backgroundColor: COLORS.imperialPurple,
+              backgroundColor: COLORS.obsidianBlack,
               justifyContent: "center",
               alignItems: "center",
               elevation: 8,
@@ -81,34 +82,29 @@ const HomeScreen = () => {
               shadowRadius: 4,
             }}
           >
-            <Text style={{ fontSize: 32, color: COLORS.white }}>📷</Text>
+        <AntDesign name="videocamera" size={56} color="white" />
           </TouchableOpacity>
         </Animated.View>
       </View>
 
       {/* Footer */}
-      <View style={{ flexDirection: "row", justifyContent: "space-around", paddingVertical: 12, backgroundColor: COLORS.royalSapphire, borderTopWidth: 1, borderTopColor: COLORS.platinumSilver }}>
-        <TouchableOpacity style={{ alignItems: "center" }}>
-          <View style={{ backgroundColor: COLORS.imperialPurple, padding: 10, borderRadius: 30, marginBottom: 5 }}>
-            <Text style={{ fontSize: 18, color: COLORS.platinumSilver }}>📸</Text>
+      <View style={{ flexDirection: "row", justifyContent: "space-around", paddingVertical: 12, backgroundColor: COLORS.obsidianBlack, borderTopWidth: 1, borderTopColor: COLORS.platinumSilver }}>
+        <TouchableOpacity    onPress={() => router.push("/camera")} style={{ alignItems: "center" }}>
+          <View style={{ backgroundColor: COLORS.obsidianBlack, padding: 10, borderRadius: 30, marginBottom: 5 }}>
+          <AntDesign name="videocamera" size={24} color="white" />
           </View>
           <Text style={{ fontSize: 12, color: COLORS.platinumSilver }}>Scan</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={{ alignItems: "center", opacity: 0.7 }}>
+        <TouchableOpacity    onPress={() => router.push("/collection")} style={{ alignItems: "center", opacity: 0.7 }}>
           <View style={{ padding: 10, borderRadius: 30, marginBottom: 5 }}>
-            <Text style={{ fontSize: 18, color: COLORS.platinumSilver }}>📈</Text>
+          <AntDesign name="folderopen" size={24} color="white" />
           </View>
-          <Text style={{ fontSize: 12, color: COLORS.platinumSilver }}>Insights</Text>
+          <Text style={{ fontSize: 12, color: COLORS.platinumSilver }}>Collection</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={{ alignItems: "center", opacity: 0.7 }}>
+  
+        <TouchableOpacity    onPress={() => router.push("/profile")} style={{ alignItems: "center", opacity: 0.7 }}>
           <View style={{ padding: 10, borderRadius: 30, marginBottom: 5 }}>
-            <Text style={{ fontSize: 18, color: COLORS.platinumSilver }}>🔎</Text>
-          </View>
-          <Text style={{ fontSize: 12, color: COLORS.platinumSilver }}>Explore</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={{ alignItems: "center", opacity: 0.7 }}>
-          <View style={{ padding: 10, borderRadius: 30, marginBottom: 5 }}>
-            <Text style={{ fontSize: 18, color: COLORS.platinumSilver }}>👤</Text>
+          <AntDesign name="user" size={24} color="white" />
           </View>
           <Text style={{ fontSize: 12, color: COLORS.platinumSilver }}>Profile</Text>
         </TouchableOpacity>
