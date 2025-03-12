@@ -1,3 +1,4 @@
+
 import { AntDesign, Feather, FontAwesome6 } from "@expo/vector-icons";
 import {
   CameraMode,
@@ -11,13 +12,22 @@ import {
   Animated,
   Button,
   Image,
+  Modal,
   Pressable,
   StyleSheet,
   Text,
   View
 } from "react-native";
+import { GestureHandlerRootView, ScrollView, TouchableOpacity } from "react-native-gesture-handler";
+import { COLORS } from "../styles/theme";
+import { supabase } from "../supabaseClient";
+
+
 
 export default function Camera() {
+  const api_key = process.env.ROBOFLOW_API_KEY;
+  const [metadata, setMetadata] = useState<any | null>(null);
+
   const [permission, requestPermission] = useCameraPermissions();
   const ref = useRef<CameraView>(null);
   const [uri, setUri] = useState<string | null>(null);
@@ -90,7 +100,8 @@ export default function Camera() {
         reader.onerror = reject;
         reader.readAsDataURL(blob);
       });
-
+  
+      // Send image to Roboflow for classification
       const apiResponse = await fetch(
         "https://detect.roboflow.com/infer/workflows/sultup/detect-and-classify",
         {
@@ -99,32 +110,40 @@ export default function Camera() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            api_key: "vAQ3rXRm1GwuSGX7fI0s",
+            api_key: 'vAQ3rXRm1GwuSGX7fI0s',
             inputs: {
-              image: { type: "base64", value: base64.split(',')[1] },
+              image: { type: "base64", value: base64.split(",")[1] },
             },
           }),
         }
       );
-
+  
       if (!apiResponse.ok) {
         throw new Error("Failed to process image");
       }
-
+  
       const result = await apiResponse.json();
       setInferenceResults(result);
-      
-      // Extract the class from the result - matches actual response structure
+  
+      // Extract detected class
       console.log("API Response:", JSON.stringify(result, null, 2));
-      if (result && 
-          result.outputs && 
-          result.outputs[0]?.predictions?.predictions && 
-          result.outputs[0].predictions.predictions.length > 0) {
-        setDetectedClass(result.outputs[0].predictions.predictions[0].class);
+  
+      if (
+        result &&
+        result.outputs &&
+        result.outputs[0]?.predictions?.predictions &&
+        result.outputs[0].predictions.predictions.length > 0
+      ) {
+        const detectedItem = result.outputs[0].predictions.predictions[0].class;
+        setDetectedClass(detectedItem);
+  
+        // Fetch metadata from Supabase by matching "title"
+        fetchMetadata(detectedItem);
       } else {
         setDetectedClass("No object detected");
+        setMetadata(null);
       }
-      
+  
       slideUp();
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
@@ -132,6 +151,8 @@ export default function Camera() {
       setLoading(false);
     }
   };
+  
+
 
   const takePicture = async () => {
     const photo = await ref.current?.takePictureAsync();
@@ -160,40 +181,162 @@ export default function Camera() {
     setFacing((prev) => (prev === "back" ? "front" : "back"));
   };
 
+  const DetailItem = ({ label, value }: { label: string; value?: string }) => (
+    <View style={{ marginBottom: 10 }}>
+      <Text style={{ color: COLORS.platinumSilver, fontWeight: "bold", fontSize: 14 }}>
+        {label}:
+      </Text>
+      <Text style={{ color: COLORS.white, fontSize: 16 }}>{value || "N/A"}</Text>
+    </View>
+  );
+  
   const renderResults = () => {
     return (
-      <Animated.View
-        style={[
-          styles.resultsContainer,
-          {
-            transform: [
-              {
-                translateY: slideAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [300, 0],
-                }),
-              },
-            ],
-          },
-        ]}
-      >
-        <View style={styles.resultsHeader}>
-          <Text style={styles.resultsTitle}>Results</Text>
-          <Pressable onPress={slideDown}>
-            <AntDesign name="close" size={24} color="black" />
-          </Pressable>
-        </View>
-        {detectedClass && (
-          <View style={styles.resultsContent}>
-            <Text style={styles.resultText}>
-              Detected: {detectedClass}
-            </Text>
-          </View>
+      <Modal visible={!!metadata} transparent animationType="slide">
+      <GestureHandlerRootView style={{ flex: 1 }}>
+    
+        {metadata && (
+           <View
+           style={{
+             flex: 1,
+             backgroundColor: "rgba(0,0,0,0.85)",
+             justifyContent: "center",
+             alignItems: "center",
+           }}
+         >
+           <View
+             style={{
+               width: "90%",
+               backgroundColor: COLORS.obsidianBlack,
+               borderRadius: 20,
+               padding: 0,
+               overflow: "hidden",
+             }}
+           >
+             {/* Header with Close Button */}
+             <View
+               style={{
+                 flexDirection: "row",
+                 justifyContent: "space-between",
+                 alignItems: "center",
+                 paddingHorizontal: 20,
+                 paddingTop: 15,
+                 paddingBottom: 10,
+               }}
+             >
+               <Text
+                 style={{
+                   fontSize: 22,
+                   fontWeight: "bold",
+                   color: COLORS.white,
+                   flex: 1,
+                 }}
+                 numberOfLines={2}
+               >
+                 {metadata.title}
+               </Text>
+               <TouchableOpacity
+                 onPress={() => setMetadata(null)}
+                 style={{ padding: 5 }}
+               >
+                 <Text style={{ fontSize: 24, color: COLORS.platinumSilver }}>
+                   ✖
+                 </Text>
+               </TouchableOpacity>
+             </View>
+ 
+             {/* Display User's Captured Image */}
+             <Image
+               source={{ uri }}
+               style={{ width: "100%", height: 240, resizeMode: "cover" }}
+             />
+ 
+             {/* Price Badge */}
+             {metadata.price && (
+               <View
+                 style={{
+                   position: "absolute",
+                   top: 240,
+                   right: 20,
+                   backgroundColor: COLORS.royalSapphire,
+                   paddingVertical: 8,
+                   paddingHorizontal: 15,
+                   borderRadius: 20,
+                   shadowColor: "#000",
+                   shadowOffset: { width: 0, height: 2 },
+                   shadowOpacity: 0.3,
+                   shadowRadius: 4,
+                   elevation: 5,
+                   transform: [{ translateY: -20 }],
+                 }}
+               >
+                 <Text
+                   style={{ fontSize: 18, fontWeight: "bold", color: COLORS.white }}
+                 >
+                   {metadata.price}
+                 </Text>
+               </View>
+             )}
+ 
+             {/* Product Details */}
+             <ScrollView style={{ maxHeight: 350, paddingHorizontal: 20, paddingTop: 15 }}>
+               {/* Description */}
+               <Text style={{ color: COLORS.platinumSilver, marginBottom: 20, lineHeight: 22 }}>
+                 {metadata.description}
+               </Text>
+ 
+               {/* Details in Two Columns */}
+               <View style={{ flexDirection: "row", marginBottom: 20 }}>
+                 {/* Left Column */}
+                 <View style={{ flex: 1, marginRight: 10 }}>
+                   <DetailItem label="Style" value={metadata.style} />
+                   <DetailItem label="Period" value={metadata.period} />
+                   <DetailItem label="Manufacturer" value={metadata.manufacturer} />
+                   <DetailItem label="Materials" value={metadata.materials?.join(", ")} />
+                 </View>
+ 
+                 {/* Right Column */}
+                 <View style={{ flex: 1, marginLeft: 10 }}>
+                   <DetailItem label="Place of Origin" value={metadata.place_of_origin} />
+                   <DetailItem label="Condition" value={metadata.condition} />
+                   <DetailItem label="Dimensions" value={metadata.dimensions} />
+                   <DetailItem label="Date of Manufacture" value={metadata.date_of_manufacture} />
+                 </View>
+               </View>
+ 
+               {/* Horizontal Divider */}
+               <View style={{ height: 1, backgroundColor: "rgba(255,255,255,0.1)", marginVertical: 10 }} />
+ 
+               {/* Reference Information */}
+               <View style={{ marginBottom: 20 }}>
+                 <DetailItem label="Reference Number" value={metadata.reference_number} />
+                 <DetailItem label="Seller Location" value={metadata.seller_location} />
+               </View>
+ 
+               {/* View More Button */}
+               <TouchableOpacity
+                 style={{
+                   backgroundColor: COLORS.royalSapphire,
+                   paddingVertical: 15,
+                   borderRadius: 10,
+                   alignItems: "center",
+                   marginBottom: 25,
+                 }}
+                 onPress={() => metadata.link && Linking.openURL(metadata.link)}
+               >
+                 <Text style={{ color: COLORS.white, fontWeight: "bold", fontSize: 16 }}>
+                   View Product
+                 </Text>
+               </TouchableOpacity>
+             </ScrollView>
+           </View>
+         </View>
         )}
-      </Animated.View>
+        </GestureHandlerRootView>
+      </Modal>
     );
   };
-
+  
   const renderPicture = () => {
     if (!uri) return null;
     
@@ -269,6 +412,37 @@ export default function Camera() {
       </CameraView>
     );
   };
+  const fetchMetadata = async (itemTitle: string) => {
+    if (!itemTitle) return;
+  
+    try {
+      const { data, error } = await supabase
+        .from("product_metadata_test0")  // Replace with your actual table name
+        .select("title, price, details") // Ensure "details" is selected
+        .eq("title", itemTitle)
+        .single(); // Fetch only one matching record
+  
+      if (error) throw error;
+  
+      if (data && data.details) {
+        // Parse JSONB "details" column
+        const details = data.details; // Supabase returns JSONB as an object in JavaScript
+  
+        setMetadata({
+          title: data.title,
+          price: data.price,
+          ...details, // Spread the JSONB object into metadata state
+        });
+      } else {
+        setMetadata(null);
+      }
+    } catch (err) {
+      console.error("Error fetching metadata:", err);
+      setMetadata(null);
+    }
+  };
+  
+    
 
   return (
     <View style={styles.container}>
