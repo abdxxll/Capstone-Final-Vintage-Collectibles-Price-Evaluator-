@@ -21,7 +21,7 @@ import {
   View
 } from "react-native";
 import { GestureHandlerRootView, ScrollView, TouchableOpacity } from "react-native-gesture-handler";
-import { COLORS } from "../../styles/theme";
+import { COLORS, textColor } from "../../styles/theme";
 import { supabase } from "../../supabaseClient";
 import { uploadImageToSupabase } from "../utils/upload";
 
@@ -233,10 +233,10 @@ export default function Camera() {
 
   const DetailItem = ({ label, value }: { label: string; value?: string }) => (
     <View style={{ marginBottom: 10 }}>
-      <Text style={{ color: COLORS.burnishedGold, fontWeight: "bold", fontSize: 14 }}>
+      <Text style={{ color: textColor.secondary, fontWeight: "bold", fontSize: 14 }}>
         {label}:
       </Text>
-      <Text style={{ color: COLORS.charcoalBrown, fontSize: 16 }}>{value || "N/A"}</Text>
+      <Text style={{ color: textColor.primary, fontSize: 16 }}>{value || "N/A"}</Text>
     </View>
   );
   
@@ -278,7 +278,7 @@ export default function Camera() {
                  style={{
                    fontSize: 22,
                    fontWeight: "bold",
-                   color: COLORS.charcoalBrown,
+                   color: textColor.primary,
                    flex: 1,
                  }}
                  numberOfLines={2}
@@ -289,7 +289,7 @@ export default function Camera() {
                  onPress={() => setMetadata(null)}
                  style={{ padding: 5 }}
                >
-                 <Text style={{ fontSize: 24, color: COLORS.burnishedGold }}>
+                 <Text style={{ fontSize: 24, color: textColor.primary }}>
                    ✖
                  </Text>
                </TouchableOpacity>
@@ -308,7 +308,7 @@ export default function Camera() {
                    position: "absolute",
                    top: 240,
                    right: 20,
-                   backgroundColor: COLORS.antiqueMaroon,
+                   backgroundColor: COLORS.lightLime,
                    paddingVertical: 8,
                    paddingHorizontal: 15,
                    borderRadius: 20,
@@ -321,7 +321,7 @@ export default function Camera() {
                  }}
                >
                  <Text
-                   style={{ fontSize: 18, fontWeight: "bold", color: COLORS.charcoalBrown }}
+                   style={{ fontSize: 18, fontWeight: "bold", color: textColor.primary }}
                  >
                    {metadata.price}
                  </Text>
@@ -331,7 +331,7 @@ export default function Camera() {
              {/* Product Details */}
              <ScrollView style={{ maxHeight: 350, paddingHorizontal: 20, paddingTop: 15 }}>
                {/* Description */}
-               <Text style={{ color: COLORS.burnishedGold, marginBottom: 20, lineHeight: 22 }}>
+               <Text style={{ color: COLORS.softPurple, marginBottom: 20, lineHeight: 22 }}>
                  {metadata.description}
                </Text>
  
@@ -366,7 +366,7 @@ export default function Camera() {
                {/* View More Button */}
                <TouchableOpacity
                  style={{
-                   backgroundColor: COLORS.antiqueMaroon,
+                   backgroundColor: COLORS.lightLime,
                    paddingVertical: 15,
                    borderRadius: 10,
                    alignItems: "center",
@@ -374,7 +374,7 @@ export default function Camera() {
                  }}
                  onPress={() => metadata.link && Linking.openURL(metadata.link)}
                >
-                 <Text style={{ color: COLORS.charcoalBrown, fontWeight: "bold", fontSize: 16 }}>
+                 <Text style={{ color: textColor.primary, fontWeight: "bold", fontSize: 16 }}>
                    View Product
                  </Text>
                </TouchableOpacity>

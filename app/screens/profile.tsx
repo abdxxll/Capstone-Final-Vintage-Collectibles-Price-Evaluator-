@@ -9,12 +9,12 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import { COLORS } from "../../styles/theme";
+import { COLORS, textColor } from "../../styles/theme";
 
 
 
 // Icon components
-const IconBack = ({ size = 24, color = COLORS.charcoalBrown }) => (
+const IconBack = ({ size = 24, color = textColor.primary }) => (
   <View style={{ width: size, height: size, justifyContent: 'center' }}>
     <View style={{
       width: size * 0.3,
@@ -28,7 +28,7 @@ const IconBack = ({ size = 24, color = COLORS.charcoalBrown }) => (
   </View>
 );
 
-const IconSettings = ({ size = 24, color = COLORS.charcoalBrown }) => (
+const IconSettings = ({ size = 24, color = textColor.primary }) => (
   <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
     <View style={{ 
       width: size * 0.6, 
@@ -58,7 +58,7 @@ const IconSettings = ({ size = 24, color = COLORS.charcoalBrown }) => (
   </View>
 );
 
-const IconCollection = ({ size = 24, color = COLORS.charcoalBrown }) => (
+const IconCollection = ({ size = 24, color = textColor.primary }) => (
   <View style={{ width: size, height: size }}>
     <View style={{ 
       width: size * 0.45, 
@@ -81,7 +81,7 @@ const IconCollection = ({ size = 24, color = COLORS.charcoalBrown }) => (
   </View>
 );
 
-const IconNotification = ({ size = 24, color = COLORS.charcoalBrown }) => (
+const IconNotification = ({ size = 24, color = textColor.primary }) => (
   <View style={{ width: size, height: size, alignItems: 'center' }}>
     <View style={{ 
       width: size * 0.16, 
@@ -113,7 +113,7 @@ const IconNotification = ({ size = 24, color = COLORS.charcoalBrown }) => (
   </View>
 );
 
-const IconHelp = ({ size = 24, color = COLORS.charcoalBrown }) => (
+const IconHelp = ({ size = 24, color = textColor.primary }) => (
   <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
     <View style={{ 
       width: size * 0.7, 
@@ -161,13 +161,13 @@ const ProfileScreen = () => {
         {icon}
       </View>
       <View style={{ flex: 1 }}>
-        <Text style={{ color: COLORS.licorice, fontWeight: 'bold', fontSize: 16 }}>{title}</Text>
-        <Text style={{ color: COLORS.charcoalBrown, fontSize: 13, marginTop: 2 }}>{description}</Text>
+        <Text style={{ color: COLORS.slateGray, fontWeight: 'bold', fontSize: 16 }}>{title}</Text>
+        <Text style={{ color: textColor.primary, fontSize: 13, marginTop: 2 }}>{description}</Text>
       </View>
       {hasToggle && (
         <Switch
-          trackColor={{ false: '#3e3e3e', true: COLORS.charcoalBrown }}
-          thumbColor={isToggled ? COLORS.charcoalBrown : '#f4f3f4'}
+          trackColor={{ false: '#3e3e3e', true: textColor.primary }}
+          thumbColor={isToggled ? textColor.primary : '#f4f3f4'}
           ios_backgroundColor="#3e3e3e"
           value={isToggled}
         />
@@ -205,7 +205,7 @@ const ProfileScreen = () => {
               width: 100,
               height: 100,
               borderRadius: 50,
-              backgroundColor: COLORS.charcoalBrown,
+              backgroundColor: textColor.primary,
               alignItems: 'center',
               justifyContent: 'center',
               marginBottom: 15
@@ -215,9 +215,9 @@ const ProfileScreen = () => {
               {userData.name.charAt(0)}
             </Text>
           </View>
-          <Text style={{ color: COLORS.licorice, fontSize: 22, fontWeight: 'bold' }}>{userData.name}</Text>
-          <Text style={{ color: COLORS.charcoalBrown, fontSize: 14, marginTop: 5 }}>{userData.email}</Text>
-          <Text style={{ color: COLORS.charcoalBrown, fontSize: 14, marginTop: 5 }}>Member since {userData.memberSince}</Text>
+          <Text style={{ color: COLORS.slateGray, fontSize: 22, fontWeight: 'bold' }}>{userData.name}</Text>
+          <Text style={{ color: textColor.primary, fontSize: 14, marginTop: 5 }}>{userData.email}</Text>
+          <Text style={{ color: textColor.primary, fontSize: 14, marginTop: 5 }}>Member since {userData.memberSince}</Text>
         </View>
 
         {/* Stats */}
@@ -230,28 +230,28 @@ const ProfileScreen = () => {
           padding: 15
         }}>
           <View style={{ alignItems: 'center' }}>
-            <Text style={{ color: COLORS.licorice, fontSize: 22, fontWeight: 'bold' }}>{userData.collectionItems}</Text>
-            <Text style={{ color: COLORS.charcoalBrown, fontSize: 14 }}>Collection</Text>
+            <Text style={{ color: COLORS.slateGray, fontSize: 22, fontWeight: 'bold' }}>{userData.collectionItems}</Text>
+            <Text style={{ color: textColor.primary, fontSize: 14 }}>Collection</Text>
           </View>
-          <View style={{ width: 1, backgroundColor: COLORS.charcoalBrown, height: 40 }} />
+          <View style={{ width: 1, backgroundColor: textColor.primary, height: 40 }} />
           <View style={{ alignItems: 'center' }}>
-            <Text style={{ color: COLORS.licorice, fontSize: 22, fontWeight: 'bold' }}>{userData.recentItems}</Text>
-            <Text style={{ color: COLORS.charcoalBrown, fontSize: 14 }}>Recent</Text>
+            <Text style={{ color: COLORS.slateGray, fontSize: 22, fontWeight: 'bold' }}>{userData.recentItems}</Text>
+            <Text style={{ color: textColor.primary, fontSize: 14 }}>Recent</Text>
           </View>
         </View>
 
         {/* Settings */}
-        <Text style={{ color: COLORS.licorice, fontSize: 18, fontWeight: 'bold', marginBottom: 15 }}>Settings</Text>
+        <Text style={{ color: COLORS.slateGray, fontSize: 18, fontWeight: 'bold', marginBottom: 15 }}>Settings</Text>
         
         {renderSettingItem(
-          <IconCollection color={COLORS.charcoalBrown} />,
+          <IconCollection color={textColor.primary} />,
           "My Collection",
           "View and manage your items",
           false
         )}
         
         {renderSettingItem(
-          <IconNotification color={COLORS.charcoalBrown} />,
+          <IconNotification color={textColor.primary} />,
           "Notifications",
           "Manage your alert preferences",
           true,
@@ -259,7 +259,7 @@ const ProfileScreen = () => {
         )}
         
         {renderSettingItem(
-          <IconHelp color={COLORS.charcoalBrown} />,
+          <IconHelp color={textColor.primary} />,
           "Help & Support",
           "FAQs, contact support",
           false

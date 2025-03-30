@@ -11,13 +11,13 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import { COLORS } from "../styles/theme";
+import { COLORS, textColor } from "../../styles/theme";
 
 
   
 
 // Icon Components
-const IconBack = ({ size = 24, color = COLORS.charcoalBrown }) => (
+const IconBack = ({ size = 24, color = textColor.primary }) => (
   <View style={{ width: size, height: size, justifyContent: 'center' }}>
     <View style={{
       width: size * 0.3,
@@ -31,16 +31,16 @@ const IconBack = ({ size = 24, color = COLORS.charcoalBrown }) => (
   </View>
 );
 
-const DetailItem = ({ label, value }) => (
+const DetailItem: React.FC<{ label: string; value: string }> = ({ label, value }) => (
     <View style={{ marginBottom: 10 }}>
       <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', marginBottom: 2 }}>{label}</Text>
-      <Text style={{ color: COLORS.charcoalBrown, fontWeight: '500' }}>{value}</Text>
+      <Text style={{ color: textColor.primary, fontWeight: '500' }}>{value}</Text>
     </View>
   );
 
 const RecentScreen = () => {
     const router = useRouter();
-    const [selectedItem, setSelectedItem] = useState(null);
+    const [selectedItem, setSelectedItem] = useState<typeof recentItems[0] | null>(null);
   
   // Sample data
   const recentItems = [
@@ -181,8 +181,8 @@ const RecentScreen = () => {
             <Image source={item.image} style={{ width: 80, height: 80, borderRadius: 10 }} />
             <View style={{ flex: 1, marginLeft: 15, justifyContent: 'center' }}>
               <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>{item.title}</Text>
-              <Text style={{ color: COLORS.charcoalBrown, fontSize: 14, marginTop: 2 }}>{item.period}</Text>
-              <Text style={{ color: COLORS.charcoalBrown, fontSize: 14, marginTop: 10 }}>{item.price}</Text>
+              <Text style={{ color: textColor.primary, fontSize: 14, marginTop: 2 }}>{item.period}</Text>
+              <Text style={{ color: textColor.primary, fontSize: 14, marginTop: 10 }}>{item.price}</Text>
               <Text style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: 12, marginTop: 5 }}>{item.date}</Text>
             </View>
           </View>
@@ -198,11 +198,11 @@ const RecentScreen = () => {
         
         {/* Header with close button */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingTop: 15, paddingBottom: 10 }}>
-          <Text style={{ fontSize: 22, fontWeight: "bold", color: COLORS.charcoalBrown, flex: 1 }} numberOfLines={2}>
+          <Text style={{ fontSize: 22, fontWeight: "bold", color: textColor.primary, flex: 1 }} numberOfLines={2}>
             {selectedItem.title}
           </Text>
           <TouchableOpacity onPress={() => setSelectedItem(null)} style={{ padding: 5 }}>
-            <Text style={{ fontSize: 24, color: COLORS.burnishedGold }}>✖</Text>
+            <Text style={{ fontSize: 24, color: COLORS.softPurple }}>✖</Text>
           </TouchableOpacity>
         </View>
         
@@ -228,14 +228,14 @@ const RecentScreen = () => {
           elevation: 5,
           transform: [{ translateY: -20 }]
         }}>
-          <Text style={{ fontSize: 18, fontWeight: "bold", color: COLORS.charcoalBrown }}>{selectedItem.price}</Text>
+          <Text style={{ fontSize: 18, fontWeight: "bold", color: textColor.primary }}>{selectedItem.price}</Text>
         </View>
         
         {/* Product Details */}
         <ScrollView style={{ maxHeight: 350, paddingHorizontal: 20, paddingTop: 15 }}>
           
           {/* Description */}
-          <Text style={{ color: COLORS.burnishedGold, marginBottom: 20, lineHeight: 22 }}>{selectedItem.description}</Text>
+          <Text style={{ color: COLORS.softPurple, marginBottom: 20, lineHeight: 22 }}>{selectedItem.description}</Text>
           
           {/* Details in two columns */}
           <View style={{ flexDirection: 'row', marginBottom: 20 }}>
@@ -269,14 +269,14 @@ const RecentScreen = () => {
           {/* Action Button */}
           <TouchableOpacity 
             style={{ 
-              backgroundColor: COLORS.burnishedGold, 
+              backgroundColor: COLORS.softPurple, 
               paddingVertical: 15, 
               borderRadius: 10, 
               alignItems: 'center',
               marginBottom: 25
             }}
           >
-            <Text style={{ color: COLORS.antiqueMaroon, fontWeight: 'bold', fontSize: 16 }}>View Similar Items</Text>
+            <Text style={{ color: COLORS.lightLime, fontWeight: 'bold', fontSize: 16 }}>View Similar Items</Text>
           </TouchableOpacity>
         </ScrollView>
       </View>

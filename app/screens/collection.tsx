@@ -18,10 +18,10 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import { COLORS } from "../../styles/theme";
+import { COLORS, textColor } from "../../styles/theme";
 
 // Enhanced Icon Components with smoother appearance
-const IconBack = ({ size = 24, color = COLORS.charcoalBrown }) => (
+const IconBack = ({ size = 24, color = textColor.primary }) => (
   <View style={{ width: size, height: size, justifyContent: 'center', alignItems: 'center' }}>
     <View style={{
       width: size * 0.4,
@@ -34,7 +34,7 @@ const IconBack = ({ size = 24, color = COLORS.charcoalBrown }) => (
   </View>
 );
 
-const IconSearch = ({ size = 24, color = COLORS.charcoalBrown }) => (
+const IconSearch = ({ size = 24, color = textColor.primary }) => (
   <View style={{ width: size, height: size }}>
     <View style={{
       width: size * 0.7,
@@ -55,7 +55,7 @@ const IconSearch = ({ size = 24, color = COLORS.charcoalBrown }) => (
   </View>
 );
 
-const IconFilter = ({ size = 24, color = COLORS.charcoalBrown }) => (
+const IconFilter = ({ size = 24, color = textColor.primary }) => (
   <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
     <View style={{ width: size * 0.8, height: 2.5, backgroundColor: color, marginBottom: size * 0.2 }} />
     <View style={{ width: size * 0.6, height: 2.5, backgroundColor: color, marginBottom: size * 0.2 }} />
@@ -358,7 +358,7 @@ const CollectionScreen = () => {
           onPress={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
         >
           {viewMode === "grid" ? (
-            <IconFilter size={22} color={COLORS.charcoalBrown} />
+            <IconFilter size={22} color={textColor.primary} />
           ) : (
             <View style={styles.gridIcon}>
               <View style={styles.gridDot} />
@@ -386,32 +386,32 @@ const CollectionScreen = () => {
         <InsightCard 
           title="Total Items" 
           value={collectionItems.length}
-          icon={<AntDesign name="inbox" size={20} color={COLORS.charcoalBrown} />}
-          color={COLORS.burnishedGold}
+          icon={<AntDesign name="inbox" size={20} color={textColor.primary} />}
+          color={COLORS.softPurple}
         />
       </View>
       <View className="w-[48%]">
         <InsightCard 
           title="Total Value" 
           value={formattedValue}
-          icon={<AntDesign name="wallet" size={20} color={COLORS.charcoalBrown} />}
-          color={COLORS.burnishedGold}
+          icon={<AntDesign name="wallet" size={20} color={textColor.primary} />}
+          color={COLORS.softPurple}
         />
       </View>
       <View className="w-[48%]">
         <InsightCard 
           title="Categories" 
           value={categories.length - 1}
-          icon={<AntDesign name="appstore1" size={20} color={COLORS.charcoalBrown} />}
-          color={COLORS.burnishedGold}
+          icon={<AntDesign name="appstore1" size={20} color={textColor.primary} />}
+          color={COLORS.softPurple}
         />
       </View>
       <View className="w-[48%]">
         <InsightCard 
           title="Top Category" 
           value={mostValuableCategory()}
-          icon={<AntDesign name="star" size={20} color={COLORS.charcoalBrown} />}
-          color={COLORS.burnishedGold}
+          icon={<AntDesign name="star" size={20} color={textColor.primary} />}
+          color={COLORS.softPurple}
         />
       </View>
     </View>
@@ -741,7 +741,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: COLORS.charcoalBrown,
+    color: textColor.primary,
     flex: 1,
     textAlign: 'center',
   },
@@ -761,7 +761,7 @@ const styles = StyleSheet.create({
   gridDot: {
     width: 9,
     height: 9,
-    backgroundColor: COLORS.charcoalBrown,
+    backgroundColor: textColor.primary,
     margin: 1,
     borderRadius: 1,
   },
@@ -793,7 +793,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    color: COLORS.charcoalBrown,
+    color: textColor.primary,
     paddingVertical: 10,
     paddingHorizontal: 10,
     fontSize: 16,
@@ -819,10 +819,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
   activeCategoryButton: {
-    backgroundColor: COLORS.antiqueMaroon,
+    backgroundColor: COLORS.lightLime,
   },
   categoryButtonText: {
-    color: COLORS.charcoalBrown,
+    color: textColor.primary,
     fontWeight: '500',
     fontSize: 15,
   },
@@ -855,13 +855,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 10,
     right: 10,
-    backgroundColor: COLORS.burnishedGold,
+    backgroundColor: COLORS.softPurple,
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 12,
   },
   periodText: {
-    color: COLORS.charcoalBrown,
+    color: textColor.primary,
     fontSize: 12,
     fontWeight: '600',
   },
@@ -869,7 +869,7 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   gridItemTitle: {
-    color: COLORS.charcoalBrown,
+    color: textColor.primary,
     fontWeight: 'bold',
     fontSize: 15,
     marginBottom: 5,
@@ -884,7 +884,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   gridItemPrice: {
-    color: COLORS.charcoalBrown,
+    color: textColor.primary,
     fontSize: 15,
     fontWeight: '600',
   },
@@ -911,7 +911,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   listItemTitle: {
-    color: COLORS.charcoalBrown,
+    color: textColor.primary,
     fontWeight: 'bold',
     fontSize: 16,
   },
@@ -925,7 +925,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   listItemPrice: {
-    color: COLORS.charcoalBrown,
+    color: textColor.primary,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -941,7 +941,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   emptyTitle: {
-    color: COLORS.charcoalBrown,
+    color: textColor.primary,
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
@@ -960,7 +960,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: COLORS.antiqueMaroon,
+    backgroundColor: COLORS.lightLime,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: "#000",
@@ -1020,7 +1020,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   closeButtonText: {
-    color: COLORS.charcoalBrown,
+    color: textColor.primary,
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -1028,13 +1028,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 15,
     left: 15,
-    backgroundColor: COLORS.burnishedGold,
+    backgroundColor: COLORS.softPurple,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 12,
   },
   modalPeriodText: {
-    color: COLORS.charcoalBrown,
+    color: textColor.primary,
     fontSize: 13,
     fontWeight: '600',
   },
@@ -1042,7 +1042,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: -20,
     right: 20,
-    backgroundColor: COLORS.antiqueMaroon,
+    backgroundColor: COLORS.lightLime,
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 20,
@@ -1075,7 +1075,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 22,
     fontWeight: "bold",
-    color: COLORS.charcoalBrown,
+    color: textColor.primary,
     marginBottom: 5,
   },
   modalManufacturer: {
@@ -1092,10 +1092,10 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.charcoalBrown,
+    color: textColor.primary,
     marginBottom: 15,
     borderLeftWidth: 3,
-    borderLeftColor: COLORS.antiqueMaroon,
+    borderLeftColor: COLORS.lightLime,
     paddingLeft: 10,
   },
   detailsSection: {
@@ -1119,7 +1119,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   detailValue: {
-    color: COLORS.charcoalBrown,
+    color: textColor.primary,
     fontWeight: '500',
     fontSize: 15,
   },
@@ -1129,20 +1129,20 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   primaryButton: {
-    backgroundColor: COLORS.antiqueMaroon,
+    backgroundColor: COLORS.lightLime,
     paddingVertical: 15,
     borderRadius: 12,
     alignItems: 'center',
     flex: 1,
     marginLeft: 10,
-    shadowColor: COLORS.antiqueMaroon,
+    shadowColor: COLORS.lightLime,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.3,
     shadowRadius: 5,
     elevation: 4,
   },
   primaryButtonText: {
-    color: COLORS.charcoalBrown,
+    color: textColor.primary,
     fontWeight: 'bold',
     fontSize: 16,
   },
@@ -1157,7 +1157,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   secondaryButtonText: {
-    color: COLORS.charcoalBrown,
+    color: textColor.primary,
     fontWeight: 'bold',
     fontSize: 16,
   },
@@ -1189,7 +1189,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
   priceModalTitle: {
-    color: COLORS.charcoalBrown,
+    color: textColor.primary,
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -1212,7 +1212,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   locationText: {
-    color: COLORS.charcoalBrown,
+    color: textColor.primary,
     fontSize: 16,
   },
   locationOptionsContainer: {
@@ -1231,7 +1231,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
   locationOptionText: {
-    color: COLORS.charcoalBrown,
+    color: textColor.primary,
     fontSize: 15,
   },
   priceSourceItem: {
@@ -1246,7 +1246,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   priceSourceName: {
-    color: COLORS.charcoalBrown,
+    color: textColor.primary,
     fontSize: 16,
     fontWeight: '500',
     marginBottom: 4,
@@ -1256,7 +1256,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   priceSourceValue: {
-    color: COLORS.charcoalBrown,
+    color: textColor.primary,
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -1288,7 +1288,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
   validationTitle: {
-    color: COLORS.charcoalBrown,
+    color: textColor.primary,
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -1307,7 +1307,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   validationType: {
-    color: COLORS.charcoalBrown,
+    color: textColor.primary,
     fontSize: 16,
     fontWeight: 'bold',
   },

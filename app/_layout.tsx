@@ -7,7 +7,7 @@ export default function Layout() {
     <Stack>
     
       <Stack.Screen name="index" />
-      <Stack.Screen name="camera" />
+      <Stack.Screen name="screens/camera" />
 
     </Stack>
   );

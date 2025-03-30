@@ -10,15 +10,15 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import { COLORS } from "../styles/theme";
+import { COLORS, textColor } from "../styles/theme";
 
 const { width, height } = Dimensions.get("window");
 
 // Updated Icons with Modern Colors
 const IconUser = () => (
   <View style={{ width: 24, height: 24, alignItems: "center" }}>
-    <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: COLORS.burnishedGold, marginBottom: 2 }} />
-    <View style={{ width: 16, height: 8, borderTopLeftRadius: 8, borderTopRightRadius: 8, backgroundColor: COLORS.burnishedGold }} />
+    <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: COLORS.softPurple, marginBottom: 2 }} />
+    <View style={{ width: 16, height: 8, borderTopLeftRadius: 8, borderTopRightRadius: 8, backgroundColor: COLORS.softPurple }} />
   </View>
 );
 
@@ -48,9 +48,9 @@ const HomeScreen = () => {
 
       {/* Header */}
       <View style={{ paddingHorizontal: 20, paddingVertical: 15, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-        <Text style={{ fontSize: 20, fontWeight: "bold", color: COLORS.charcoalBrown }}>PLUTUS AI</Text>
+        <Text style={{ fontSize: 20, fontWeight: "bold", color: textColor.primary }}>Capstone</Text>
         <TouchableOpacity
-          onPress={() => router.push("/profile")}
+          onPress={() => router.push("/screens/profile")}
           style={{ backgroundColor: COLORS.softIvory, padding: 8, borderRadius: 50 }}
         >
           <IconUser />
@@ -66,7 +66,7 @@ const HomeScreen = () => {
           }}
         >
           <TouchableOpacity
-            onPress={() => router.push("/camera")}
+            onPress={() => router.push("/screens/camera")}
             activeOpacity={0.8}
             style={{
               width: 150,
@@ -76,7 +76,7 @@ const HomeScreen = () => {
               justifyContent: "center",
               alignItems: "center",
               elevation: 8,
-              shadowColor: COLORS.burnishedGold,
+              shadowColor: COLORS.softPurple,
               shadowOffset: { width: 0, height: 4 },
               shadowOpacity: 0.3,
               shadowRadius: 4,
@@ -88,26 +88,21 @@ const HomeScreen = () => {
       </View>
 
       {/* Footer */}
-      <View style={{ flexDirection: "row", justifyContent: "space-around", paddingVertical: 12, backgroundColor: COLORS.softIvory, borderTopWidth: 1, borderTopColor: COLORS.burnishedGold }}>
-        <TouchableOpacity    onPress={() => router.push("/camera")} style={{ alignItems: "center" }}>
-          <View style={{ backgroundColor: COLORS.softIvory, padding: 10, borderRadius: 30, marginBottom: 5 }}>
+      <View style={{ flexDirection: "row", justifyContent: "space-around", paddingVertical: 12, backgroundColor: COLORS.softIvory, borderTopWidth: 1, borderTopColor: COLORS.charcoal }}>
+        {/* <TouchableOpacity    onPress={() => router.push("/screens/camera")} style={{ alignItems: "center" }}>
+          <View style={{ backgroundColor: COLORS.softIvory, padding: 5, borderRadius: 30, marginBottom: 5 }}>
           <AntDesign name="videocamera" size={24} color="charcoalBrown" />
           </View>
-          <Text style={{ fontSize: 12, color: COLORS.burnishedGold }}>Scan</Text>
-        </TouchableOpacity>
-        <TouchableOpacity    onPress={() => router.push("/collection")} style={{ alignItems: "center", opacity: 0.7 }}>
-          <View style={{ padding: 10, borderRadius: 30, marginBottom: 5 }}>
+          <Text style={{ fontSize: 12, color: COLORS.softPurple }}>Scan</Text>
+        </TouchableOpacity> */}
+        <TouchableOpacity    onPress={() => router.push("/screens/collection")} style={{ alignItems: "center", opacity: 0.7 }}>
+          <View style={{ padding: 5, borderRadius: 30, marginBottom: 5 }}>
           <AntDesign name="folderopen" size={24} color="charcoalBrown" />
           </View>
-          <Text style={{ fontSize: 12, color: COLORS.burnishedGold }}>Collection</Text>
+          <Text style={{ fontSize: 12, color: COLORS.softPurple }}>Collection</Text>
         </TouchableOpacity>
   
-        <TouchableOpacity    onPress={() => router.push("/profile")} style={{ alignItems: "center", opacity: 0.7 }}>
-          <View style={{ padding: 10, borderRadius: 30, marginBottom: 5 }}>
-          <AntDesign name="user" size={24} color="charcoalBrown" />
-          </View>
-          <Text style={{ fontSize: 12, color: COLORS.burnishedGold }}>Profile</Text>
-        </TouchableOpacity>
+    
       </View>
     </SafeAreaView>
   );
