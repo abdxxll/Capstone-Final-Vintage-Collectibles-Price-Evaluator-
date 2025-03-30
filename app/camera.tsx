@@ -6,12 +6,14 @@ import {
   CameraView,
   useCameraPermissions,
 } from "expo-camera";
+import Constants from 'expo-constants';
 import { useRef, useState } from "react";
 import {
   ActivityIndicator,
   Animated,
   Button,
   Image,
+  Linking,
   Modal,
   Pressable,
   StyleSheet,
@@ -88,35 +90,51 @@ export default function Camera() {
   }
 
   const processImage = async (imageUri: string) => {
-    setLoading(true);
-    setError(null);
+    setLoading(true)
+    setError(null)
+  
+
+
+  const ROBOFLOW_API_KEY = Constants.expoConfig?.extra?.ROBOFLOW_API_KEY
+
+  if (!ROBOFLOW_API_KEY) {
+    setError('Missing Roboflow API key')
+    return
+  }
+  
     try {
       // Convert image to base64
-      const response = await fetch(imageUri);
-      const blob = await response.blob();
+      const response = await fetch(imageUri)
+      const blob = await response.blob()
       const base64 = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      });
+        const reader = new FileReader()
+        reader.onload = () => resolve(reader.result as string)
+        reader.onerror = reject
+        reader.readAsDataURL(blob)
+      })
   
-      // Send image to Roboflow for classification
+      // Strip "data:image/jpeg;base64," or similar prefix
+      const base64Image = base64.split(',')[1]
+  
+      // Call Roboflow Hosted Workflow API
       const apiResponse = await fetch(
-        "https://detect.roboflow.com/infer/workflows/sultup/detect-and-classify",
+        'https://detect.roboflow.com/infer/workflows/sultup/detect-and-classify',
         {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            api_key: 'vAQ3rXRm1GwuSGX7fI0s',
+            api_key: ROBOFLOW_API_KEY,
             inputs: {
-              image: { type: "base64", value: base64.split(",")[1] },
-            },
-          }),
+              image: {
+                type: 'base64',
+                value: base64Image
+              }
+            }
+          })
         }
-      );
+      )
   
       if (!apiResponse.ok) {
         throw new Error("Failed to process image");
@@ -183,10 +201,10 @@ export default function Camera() {
 
   const DetailItem = ({ label, value }: { label: string; value?: string }) => (
     <View style={{ marginBottom: 10 }}>
-      <Text style={{ color: COLORS.platinumSilver, fontWeight: "bold", fontSize: 14 }}>
+      <Text style={{ color: COLORS.burnishedGold, fontWeight: "bold", fontSize: 14 }}>
         {label}:
       </Text>
-      <Text style={{ color: COLORS.white, fontSize: 16 }}>{value || "N/A"}</Text>
+      <Text style={{ color: COLORS.charcoalBrown, fontSize: 16 }}>{value || "N/A"}</Text>
     </View>
   );
   
@@ -207,7 +225,7 @@ export default function Camera() {
            <View
              style={{
                width: "90%",
-               backgroundColor: COLORS.obsidianBlack,
+               backgroundColor: COLORS.softIvory,
                borderRadius: 20,
                padding: 0,
                overflow: "hidden",
@@ -228,7 +246,7 @@ export default function Camera() {
                  style={{
                    fontSize: 22,
                    fontWeight: "bold",
-                   color: COLORS.white,
+                   color: COLORS.charcoalBrown,
                    flex: 1,
                  }}
                  numberOfLines={2}
@@ -239,7 +257,7 @@ export default function Camera() {
                  onPress={() => setMetadata(null)}
                  style={{ padding: 5 }}
                >
-                 <Text style={{ fontSize: 24, color: COLORS.platinumSilver }}>
+                 <Text style={{ fontSize: 24, color: COLORS.burnishedGold }}>
                    ✖
                  </Text>
                </TouchableOpacity>
@@ -247,7 +265,7 @@ export default function Camera() {
  
              {/* Display User's Captured Image */}
              <Image
-               source={{ uri }}
+               source={{ uri: uri || '' }}
                style={{ width: "100%", height: 240, resizeMode: "cover" }}
              />
  
@@ -258,7 +276,7 @@ export default function Camera() {
                    position: "absolute",
                    top: 240,
                    right: 20,
-                   backgroundColor: COLORS.royalSapphire,
+                   backgroundColor: COLORS.antiqueMaroon,
                    paddingVertical: 8,
                    paddingHorizontal: 15,
                    borderRadius: 20,
@@ -271,7 +289,7 @@ export default function Camera() {
                  }}
                >
                  <Text
-                   style={{ fontSize: 18, fontWeight: "bold", color: COLORS.white }}
+                   style={{ fontSize: 18, fontWeight: "bold", color: COLORS.charcoalBrown }}
                  >
                    {metadata.price}
                  </Text>
@@ -281,7 +299,7 @@ export default function Camera() {
              {/* Product Details */}
              <ScrollView style={{ maxHeight: 350, paddingHorizontal: 20, paddingTop: 15 }}>
                {/* Description */}
-               <Text style={{ color: COLORS.platinumSilver, marginBottom: 20, lineHeight: 22 }}>
+               <Text style={{ color: COLORS.burnishedGold, marginBottom: 20, lineHeight: 22 }}>
                  {metadata.description}
                </Text>
  
@@ -316,7 +334,7 @@ export default function Camera() {
                {/* View More Button */}
                <TouchableOpacity
                  style={{
-                   backgroundColor: COLORS.royalSapphire,
+                   backgroundColor: COLORS.antiqueMaroon,
                    paddingVertical: 15,
                    borderRadius: 10,
                    alignItems: "center",
@@ -324,7 +342,7 @@ export default function Camera() {
                  }}
                  onPress={() => metadata.link && Linking.openURL(metadata.link)}
                >
-                 <Text style={{ color: COLORS.white, fontWeight: "bold", fontSize: 16 }}>
+                 <Text style={{ color: COLORS.charcoalBrown, fontWeight: "bold", fontSize: 16 }}>
                    View Product
                  </Text>
                </TouchableOpacity>
@@ -379,9 +397,9 @@ export default function Camera() {
         <View style={styles.shutterContainer}>
           <Pressable onPress={toggleMode}>
             {mode === "picture" ? (
-              <AntDesign name="picture" size={32} color="white" />
+              <AntDesign name="picture" size={32} color="charcoalBrown" />
             ) : (
-              <Feather name="video" size={32} color="white" />
+              <Feather name="video" size={32} color="charcoalBrown" />
             )}
           </Pressable>
           <Pressable onPress={mode === "picture" ? takePicture : recordVideo}>
@@ -398,7 +416,7 @@ export default function Camera() {
                   style={[
                     styles.shutterBtnInner,
                     {
-                      backgroundColor: mode === "picture" ? "white" : "red",
+                      backgroundColor: mode === "picture" ? "charcoalBrown" : "red",
                     },
                   ]}
                 />
@@ -406,7 +424,7 @@ export default function Camera() {
             )}
           </Pressable>
           <Pressable onPress={toggleFacing}>
-            <FontAwesome6 name="rotate-left" size={32} color="white" />
+            <FontAwesome6 name="rotate-left" size={32} color="charcoalBrown" />
           </Pressable>
         </View>
       </CameraView>
@@ -473,7 +491,7 @@ const styles = StyleSheet.create({
   shutterBtn: {
     backgroundColor: "transparent",
     borderWidth: 5,
-    borderColor: "white",
+    borderColor: "charcoalBrown",
     width: 85,
     height: 85,
     borderRadius: 45,

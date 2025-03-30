@@ -1,15 +1,15 @@
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-    FlatList,
-    Image,
-    Modal,
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    Text,
-    TouchableOpacity,
-    View
+  FlatList,
+  Image,
+  Modal,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
 import { COLORS } from "../styles/theme";
 
@@ -17,7 +17,7 @@ import { COLORS } from "../styles/theme";
   
 
 // Icon Components
-const IconBack = ({ size = 24, color = COLORS.white }) => (
+const IconBack = ({ size = 24, color = COLORS.charcoalBrown }) => (
   <View style={{ width: size, height: size, justifyContent: 'center' }}>
     <View style={{
       width: size * 0.3,
@@ -34,7 +34,7 @@ const IconBack = ({ size = 24, color = COLORS.white }) => (
 const DetailItem = ({ label, value }) => (
     <View style={{ marginBottom: 10 }}>
       <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', marginBottom: 2 }}>{label}</Text>
-      <Text style={{ color: COLORS.white, fontWeight: '500' }}>{value}</Text>
+      <Text style={{ color: COLORS.charcoalBrown, fontWeight: '500' }}>{value}</Text>
     </View>
   );
 
@@ -149,8 +149,8 @@ const RecentScreen = () => {
   const filterOptions = ["All", "Watches", "Coins", "Art", "Furniture"];
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.obsidianBlack }}>
-    <StatusBar barStyle="light-content" backgroundColor={COLORS.obsidianBlack} />
+    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.softIvory }}>
+    <StatusBar barStyle="light-content" backgroundColor={COLORS.softIvory} />
 
     {/* Header */}
     <View style={{ paddingHorizontal: 20, paddingVertical: 15, flexDirection: 'row', alignItems: 'center' }}>
@@ -181,8 +181,8 @@ const RecentScreen = () => {
             <Image source={item.image} style={{ width: 80, height: 80, borderRadius: 10 }} />
             <View style={{ flex: 1, marginLeft: 15, justifyContent: 'center' }}>
               <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>{item.title}</Text>
-              <Text style={{ color: COLORS.white, fontSize: 14, marginTop: 2 }}>{item.period}</Text>
-              <Text style={{ color: COLORS.white, fontSize: 14, marginTop: 10 }}>{item.price}</Text>
+              <Text style={{ color: COLORS.charcoalBrown, fontSize: 14, marginTop: 2 }}>{item.period}</Text>
+              <Text style={{ color: COLORS.charcoalBrown, fontSize: 14, marginTop: 10 }}>{item.price}</Text>
               <Text style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: 12, marginTop: 5 }}>{item.date}</Text>
             </View>
           </View>
@@ -194,15 +194,15 @@ const RecentScreen = () => {
     <Modal visible={!!selectedItem} transparent animationType="slide">
   {selectedItem && (
     <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.85)", justifyContent: "center", alignItems: "center" }}>
-      <View style={{ width: "90%", backgroundColor: COLORS.obsidianBlack, borderRadius: 20, padding: 0, overflow: 'hidden' }}>
+      <View style={{ width: "90%", backgroundColor: COLORS.softIvory, borderRadius: 20, padding: 0, overflow: 'hidden' }}>
         
         {/* Header with close button */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingTop: 15, paddingBottom: 10 }}>
-          <Text style={{ fontSize: 22, fontWeight: "bold", color: COLORS.white, flex: 1 }} numberOfLines={2}>
+          <Text style={{ fontSize: 22, fontWeight: "bold", color: COLORS.charcoalBrown, flex: 1 }} numberOfLines={2}>
             {selectedItem.title}
           </Text>
           <TouchableOpacity onPress={() => setSelectedItem(null)} style={{ padding: 5 }}>
-            <Text style={{ fontSize: 24, color: COLORS.platinumSilver }}>✖</Text>
+            <Text style={{ fontSize: 24, color: COLORS.burnishedGold }}>✖</Text>
           </TouchableOpacity>
         </View>
         
@@ -217,7 +217,7 @@ const RecentScreen = () => {
           position: 'absolute', 
           top: 240, 
           right: 20, 
-          backgroundColor: COLORS.obsidianBlack, 
+          backgroundColor: COLORS.softIvory, 
           paddingVertical: 8, 
           paddingHorizontal: 15, 
           borderRadius: 20,
@@ -228,14 +228,14 @@ const RecentScreen = () => {
           elevation: 5,
           transform: [{ translateY: -20 }]
         }}>
-          <Text style={{ fontSize: 18, fontWeight: "bold", color: COLORS.white }}>{selectedItem.price}</Text>
+          <Text style={{ fontSize: 18, fontWeight: "bold", color: COLORS.charcoalBrown }}>{selectedItem.price}</Text>
         </View>
         
         {/* Product Details */}
         <ScrollView style={{ maxHeight: 350, paddingHorizontal: 20, paddingTop: 15 }}>
           
           {/* Description */}
-          <Text style={{ color: COLORS.platinumSilver, marginBottom: 20, lineHeight: 22 }}>{selectedItem.description}</Text>
+          <Text style={{ color: COLORS.burnishedGold, marginBottom: 20, lineHeight: 22 }}>{selectedItem.description}</Text>
           
           {/* Details in two columns */}
           <View style={{ flexDirection: 'row', marginBottom: 20 }}>
@@ -269,14 +269,14 @@ const RecentScreen = () => {
           {/* Action Button */}
           <TouchableOpacity 
             style={{ 
-              backgroundColor: COLORS.platinumSilver, 
+              backgroundColor: COLORS.burnishedGold, 
               paddingVertical: 15, 
               borderRadius: 10, 
               alignItems: 'center',
               marginBottom: 25
             }}
           >
-            <Text style={{ color: COLORS.royalSapphire, fontWeight: 'bold', fontSize: 16 }}>View Similar Items</Text>
+            <Text style={{ color: COLORS.antiqueMaroon, fontWeight: 'bold', fontSize: 16 }}>View Similar Items</Text>
           </TouchableOpacity>
         </ScrollView>
       </View>

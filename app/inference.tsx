@@ -56,7 +56,7 @@ const BoundingBox: React.FC<BoundingBoxProps> = ({ prediction, imageWidth, image
           position: "absolute",
           top: -20, // Offset above the box
           left: 0,
-          backgroundColor: "white",
+          backgroundColor: "charcoalBrown",
           paddingHorizontal: 6,
           paddingVertical: 3,
           borderRadius: 4,
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: "700",
-    color: "white", 
+    color: "charcoalBrown", 
     marginBottom: 8,
     fontFamily: "System",
   },
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
     borderColor: "#E0E0E0",
     borderRadius: 12,
     paddingHorizontal: 16,
-    backgroundColor: "white",
+    backgroundColor: "charcoalBrown",
     fontSize: 16,
     color: "#333",
     shadowColor: "#000",
@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     position: "relative",
-    backgroundColor: "white",
+    backgroundColor: "charcoalBrown",
     borderRadius: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
@@ -284,9 +284,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   button: {
-    backgroundColor: "#DFCEF3", // White background for button
+    backgroundColor: "#DFCEF3", // charcoalBrown background for button
     borderWidth: 2,
-    borderColor: "white", // Purple border
+    borderColor: "charcoalBrown", // Purple border
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 20, // Rounded corners matching the screenshot
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   buttonText: {
-    color: "white", // Purple text matching Plutus
+    color: "charcoalBrown", // Purple text matching Plutus
     fontSize: 16,
     fontWeight: "600",
   },
@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
   },
   resultsContainer: {
     width: "100%",
-    backgroundColor: "white",
+    backgroundColor: "charcoalBrown",
     borderRadius: 12,
     padding: 16,
     shadowColor: "#000",
