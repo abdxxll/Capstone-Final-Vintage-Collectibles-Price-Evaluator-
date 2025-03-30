@@ -1,4 +1,4 @@
-import { InsightCard } from "@/assets/components/InsightCard";
+import { InsightCard } from "@/app/assets/components/InsightCard";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { BlurView } from "expo-blur"; // You'll need to install this package
 import { useRouter } from "expo-router";
@@ -18,7 +18,7 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import { COLORS } from "../styles/theme";
+import { COLORS } from "../../styles/theme";
 
 // Enhanced Icon Components with smoother appearance
 const IconBack = ({ size = 24, color = COLORS.charcoalBrown }) => (

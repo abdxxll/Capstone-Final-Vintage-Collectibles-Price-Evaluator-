@@ -21,9 +21,9 @@ import {
   View
 } from "react-native";
 import { GestureHandlerRootView, ScrollView, TouchableOpacity } from "react-native-gesture-handler";
-import { COLORS } from "../styles/theme";
-import { supabase } from "../supabaseClient";
-
+import { COLORS } from "../../styles/theme";
+import { supabase } from "../../supabaseClient";
+import { uploadImageToSupabase } from "../utils/upload";
 
 
 export default function Camera() {
@@ -142,7 +142,8 @@ export default function Camera() {
   
       const result = await apiResponse.json();
       setInferenceResults(result);
-  
+
+
       // Extract detected class
       console.log("API Response:", JSON.stringify(result, null, 2));
   
@@ -154,6 +155,16 @@ export default function Camera() {
       ) {
         const detectedItem = result.outputs[0].predictions.predictions[0].class;
         setDetectedClass(detectedItem);
+
+        const imageUrl = await uploadImageToSupabase(imageUri);
+        if (!imageUrl) {
+          console.warn("Could not upload image, skipping Supabase save");
+          return;
+        }
+        
+        // 2. Save detection
+        await saveDetectionToSupabase(detectedItem, result, imageUrl);
+          
   
         // Fetch metadata from Supabase by matching "title"
         fetchMetadata(detectedItem);
@@ -198,6 +209,27 @@ export default function Camera() {
   const toggleFacing = () => {
     setFacing((prev) => (prev === "back" ? "front" : "back"));
   };
+
+  const saveDetectionToSupabase = async (
+    detectedClass: string,
+    inference: any,
+    imageUrl: string
+  ) => {
+    const { data, error } = await supabase.from("detections").insert([
+      {
+        class: detectedClass,
+        inference_result: inference,
+        image_url: imageUrl,
+      },
+    ]);
+  
+    if (error) {
+      console.error("Failed to save detection:", error);
+    } else {
+      console.log("Detection saved:", data);
+    }
+  };
+  
 
   const DetailItem = ({ label, value }: { label: string; value?: string }) => (
     <View style={{ marginBottom: 10 }}>
