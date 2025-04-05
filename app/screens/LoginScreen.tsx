@@ -13,7 +13,6 @@ export default function Login() {
     if (error) {
       Alert.alert("Login Error", error.message);
     }
-    // ❌ Do not redirect here — let layout handle it
   };
 
   return (

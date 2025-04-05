@@ -9,9 +9,8 @@ export const uploadImageToSupabase = async (uri: string): Promise<string | null>
     const fileName = `${Date.now()}.${fileExt}`;
     const filePath = `uploads/${fileName}`;
 
-    // Upload to Supabase Storage
     const { error } = await supabase.storage
-      .from("images") // your Supabase bucket name
+      .from("images") 
       .upload(filePath, blob, {
         contentType: "image/jpeg",
       });
