@@ -25,7 +25,7 @@ import { supabase } from "../../supabaseClient";
 
 
 export default function Camera() {
-  const api_key = process.env.ROBOFLOW_API_KEY;
+  const api_key = process.env.EXPO_PUBLIC_ROBOFLOW_API_KEY;
   const [metadata, setMetadata] = useState<any | null>(null);
 
   const [permission, requestPermission] = useCameraPermissions();
@@ -162,8 +162,8 @@ const [showValuationModal, setShowValuationModal] = useState(false);
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          api_key: process.env.ROBOFLOW_API_KEY,
-          inputs: { image: { type: "base64", value: base64Image } }
+          api_key: api_key,
+          inputs: { image: { type: "url", value: base64Image } }
         })
       }).then(res => res.json());
   

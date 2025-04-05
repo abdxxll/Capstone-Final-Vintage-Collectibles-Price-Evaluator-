@@ -20,14 +20,14 @@ export default function RootLayout() {
       setLoading(false);
 
       if (!session) {
-        router.replace("/LoginScreen");
+        router.replace("/screens/LoginScreen");
       }
     });
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       if (!session) {
-        router.replace("/LoginScreen");
+        router.replace("/screens/LoginScreen");
       }
     });
 

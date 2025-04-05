@@ -1,7 +1,7 @@
 // app/login.tsx
 import { useState } from "react";
 import { Alert, Button, TextInput, View } from "react-native";
-import { supabase } from "../supabaseClient";
+import { supabase } from "../../supabaseClient";
 
 export default function Login() {
   const [email, setEmail] = useState("");
