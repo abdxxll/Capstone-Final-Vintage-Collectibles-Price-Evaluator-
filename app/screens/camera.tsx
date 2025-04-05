@@ -6,7 +6,6 @@ import {
   CameraView,
   useCameraPermissions,
 } from "expo-camera";
-import Constants from 'expo-constants';
 import { useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -23,7 +22,6 @@ import {
 import { GestureHandlerRootView, ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import { COLORS, textColor } from "../../styles/theme";
 import { supabase } from "../../supabaseClient";
-import { uploadImageToSupabase } from "../utils/upload";
 
 
 export default function Camera() {
@@ -38,6 +36,10 @@ export default function Camera() {
   const [recording, setRecording] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [detectedLabel, setDetectedLabel] = useState<string | null>(null);
+const [valuationLoading, setValuationLoading] = useState<boolean>(false);
+const [showValuationModal, setShowValuationModal] = useState(false);
+
   interface BoundingBox {
     x: number;
     y: number;
@@ -89,108 +91,168 @@ export default function Camera() {
     );
   }
 
-  const processImage = async (imageUri: string) => {
-    setLoading(true)
-    setError(null)
-  
 
-
-  const ROBOFLOW_API_KEY = Constants.expoConfig?.extra?.ROBOFLOW_API_KEY
-
-  if (!ROBOFLOW_API_KEY) {
-    setError('Missing Roboflow API key')
-    return
-  }
+  const startScan = async (imageUri: string): Promise<{ scanId: string; imageUrl: string } | null> => {
+    const {
+      data: { user },
+      error: userError
+    } = await supabase.auth.getUser();
   
-    try {
-      // Convert image to base64
-      const response = await fetch(imageUri)
-      const blob = await response.blob()
-      const base64 = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onload = () => resolve(reader.result as string)
-        reader.onerror = reject
-        reader.readAsDataURL(blob)
-      })
-  
-      // Strip "data:image/jpeg;base64," or similar prefix
-      const base64Image = base64.split(',')[1]
-  
-      // Call Roboflow Hosted Workflow API
-      const apiResponse = await fetch(
-        'https://detect.roboflow.com/infer/workflows/sultup/detect-and-classify',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            api_key: ROBOFLOW_API_KEY,
-            inputs: {
-              image: {
-                type: 'base64',
-                value: base64Image
-              }
-            }
-          })
-        }
-      )
-  
-      if (!apiResponse.ok) {
-        throw new Error("Failed to process image");
-      }
-  
-      const result = await apiResponse.json();
-      setInferenceResults(result);
-
-
-      // Extract detected class
-      console.log("API Response:", JSON.stringify(result, null, 2));
-  
-      if (
-        result &&
-        result.outputs &&
-        result.outputs[0]?.predictions?.predictions &&
-        result.outputs[0].predictions.predictions.length > 0
-      ) {
-        const detectedItem = result.outputs[0].predictions.predictions[0].class;
-        setDetectedClass(detectedItem);
-
-        const imageUrl = await uploadImageToSupabase(imageUri);
-        if (!imageUrl) {
-          console.warn("Could not upload image, skipping Supabase save");
-          return;
-        }
-        
-        // 2. Save detection
-        await saveDetectionToSupabase(detectedItem, result, imageUrl);
-          
-  
-        // Fetch metadata from Supabase by matching "title"
-        fetchMetadata(detectedItem);
-      } else {
-        setDetectedClass("No object detected");
-        setMetadata(null);
-      }
-  
-      slideUp();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setLoading(false);
+    if (!user) {
+      console.warn("No user found");
+      return null;
     }
+  
+    // Upload image to storage
+    const filename = `${user.id}-${Date.now()}.jpg`;
+    const { data: uploadData, error: uploadError } = await supabase
+      .storage
+      .from("scans")
+      .upload(filename, {
+        uri: imageUri,
+        type: "image/jpeg",
+        name: filename,
+      } as any);
+  
+    if (uploadError) {
+      console.error("Image upload failed:", uploadError);
+      return null;
+    }
+  
+    const imageUrl = supabase
+      .storage
+      .from("scans")
+      .getPublicUrl(filename).data.publicUrl;
+  
+    // Insert new scan row
+    const { data, error } = await supabase
+      .from("rewind_scans")
+      .insert([{
+        user_id: user.id,
+        image_filename: filename,
+        image_url: imageUrl,
+        captured_at: new Date().toISOString()
+      }])
+      .select("scan_id")
+      .single();
+  
+    if (error) {
+      console.error("Failed to insert scan row:", error);
+      return null;
+    }
+  
+    return { scanId: data.scan_id, imageUrl };
   };
   
+  const runRoboflowAndUpdateScan = async (scanId: string, imageUri: string) => {
+    try {
+      // Convert image to base64
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+      const base64Image = base64.split(",")[1];
+  
+      // Roboflow request
+      const result = await fetch("https://detect.roboflow.com/infer/workflows/sultup/detect-and-classify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          api_key: process.env.ROBOFLOW_API_KEY,
+          inputs: { image: { type: "base64", value: base64Image } }
+        })
+      }).then(res => res.json());
+  
+      const detectedItem =
+      result?.outputs?.[0]?.predictions?.predictions?.[0]?.class || "Unknown";
+
+    // Show detection modal
+    setDetectedLabel(detectedItem);
+    setValuationLoading(true);
+    setShowValuationModal(true);
+
+    // Save results to scans table
+    await supabase
+      .from("rewind_scans")
+      .update({ roboflow_results: result })
+      .eq("scan_id", scanId);
+
+    // 👇 simulate price model / valuation
+    setTimeout(() => {
+      setValuationLoading(false); // hide loading spinner
+      // optionally show metadata/valuation UI
+    }, 2500);
+
+  } catch (err) {
+    console.error("Roboflow error:", err);
+  }
+};
+  
+  
+      // // Call Roboflow Hosted Workflow API
+      // const apiResponse = await fetch(
+      //   'https://detect.roboflow.com/infer/workflows/sultup/detect-and-classify',
+      //   {
+      //     method: 'POST',
+      //     headers: {
+      //       'Content-Type': 'application/json'
+      //     },
+      //     body: JSON.stringify({
+      //       api_key: ROBOFLOW_API_KEY,
+      //       inputs: {
+      //         image: {
+      //           type: 'base64',
+      //           value: base64Image
+      //         }
+      //       }
+      //     })
+      //   }
+      // )
+  
+      // if (!apiResponse.ok) {
+      //   throw new Error("Failed to process image");
+      // }
+  
+      // const result = await apiResponse.json();
+      // setInferenceResults(result);
+
+
+      // // Extract detected class
+      // console.log("API Response:", JSON.stringify(result, null, 2));
+  
+      // if (
+      //   result &&
+      //   result.outputs &&
+      //   result.outputs[0]?.predictions?.predictions &&
+      //   result.outputs[0].predictions.predictions.length > 0
+      // ) {
+      //   const detectedItem = result.outputs[0].predictions.predictions[0].class;
+      //   setDetectedClass(detectedItem);
+
+      
 
 
   const takePicture = async () => {
     const photo = await ref.current?.takePictureAsync();
     if (photo?.uri) {
-      setUri(photo.uri);
-      processImage(photo.uri);
+      setUri(photo.uri); // For preview display
+  
+      setLoading(true); // optional loading indicator
+  
+      const scan = await startScan(photo.uri);
+      if (scan) {
+        await runRoboflowAndUpdateScan(scan.scanId, photo.uri);
+        // later: call OpenAI or price model here
+      }
+  
+      setLoading(false);
     }
   };
-
+  
   const recordVideo = async () => {
     if (recording) {
       setRecording(false);
@@ -242,6 +304,7 @@ export default function Camera() {
   
   const renderResults = () => {
     return (
+      
       <Modal visible={!!metadata} transparent animationType="slide">
       <GestureHandlerRootView style={{ flex: 1 }}>
     
@@ -380,6 +443,48 @@ export default function Camera() {
                </TouchableOpacity>
              </ScrollView>
            </View>
+           <Modal visible={showValuationModal} transparent animationType="fade">
+  <View
+    style={{
+      flex: 1,
+      backgroundColor: "rgba(0,0,0,0.8)",
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 30,
+    }}
+  >
+    <View
+      style={{
+        backgroundColor: "#fff",
+        padding: 30,
+        borderRadius: 20,
+        alignItems: "center",
+        width: "90%",
+      }}
+    >
+      <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 15 }}>
+        Detected as: {detectedLabel}
+      </Text>
+
+      {valuationLoading ? (
+        <>
+          <ActivityIndicator size="large" color="#333" />
+          <Text style={{ marginTop: 10, fontSize: 16 }}>
+            Estimating valuation...
+          </Text>
+        </>
+      ) : (
+        <>
+          <Text style={{ marginTop: 10, fontSize: 16 }}>
+            Valuation complete!
+          </Text>
+          <Button title="Close" onPress={() => setShowValuationModal(false)} />
+        </>
+      )}
+    </View>
+  </View>
+</Modal>
+
          </View>
         )}
         </GestureHandlerRootView>

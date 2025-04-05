@@ -50,7 +50,7 @@ const HomeScreen = () => {
       <View style={{ paddingHorizontal: 20, paddingVertical: 15, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
         <Text style={{ fontSize: 20, fontWeight: "bold", color: textColor.primary }}>Capstone</Text>
         <TouchableOpacity
-          onPress={() => router.push("/screens/profile")}
+          onPress={() => router.push("/LoginScreen")}
           style={{ backgroundColor: COLORS.softIvory, padding: 8, borderRadius: 50 }}
         >
           <IconUser />
