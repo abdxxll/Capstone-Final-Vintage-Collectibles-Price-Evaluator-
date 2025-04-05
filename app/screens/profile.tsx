@@ -1,20 +1,20 @@
 import { useRouter } from "expo-router";
 import React from "react";
 import {
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    Switch,
-    Text,
-    TouchableOpacity,
-    View
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
-import { COLORS } from "../styles/theme";
+import { COLORS, textColor } from "../../styles/theme";
 
 
 
 // Icon components
-const IconBack = ({ size = 24, color = COLORS.white }) => (
+const IconBack = ({ size = 24, color = textColor.primary }) => (
   <View style={{ width: size, height: size, justifyContent: 'center' }}>
     <View style={{
       width: size * 0.3,
@@ -28,7 +28,7 @@ const IconBack = ({ size = 24, color = COLORS.white }) => (
   </View>
 );
 
-const IconSettings = ({ size = 24, color = COLORS.white }) => (
+const IconSettings = ({ size = 24, color = textColor.primary }) => (
   <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
     <View style={{ 
       width: size * 0.6, 
@@ -58,7 +58,7 @@ const IconSettings = ({ size = 24, color = COLORS.white }) => (
   </View>
 );
 
-const IconCollection = ({ size = 24, color = COLORS.white }) => (
+const IconCollection = ({ size = 24, color = textColor.primary }) => (
   <View style={{ width: size, height: size }}>
     <View style={{ 
       width: size * 0.45, 
@@ -81,7 +81,7 @@ const IconCollection = ({ size = 24, color = COLORS.white }) => (
   </View>
 );
 
-const IconNotification = ({ size = 24, color = COLORS.white }) => (
+const IconNotification = ({ size = 24, color = textColor.primary }) => (
   <View style={{ width: size, height: size, alignItems: 'center' }}>
     <View style={{ 
       width: size * 0.16, 
@@ -113,7 +113,7 @@ const IconNotification = ({ size = 24, color = COLORS.white }) => (
   </View>
 );
 
-const IconHelp = ({ size = 24, color = COLORS.white }) => (
+const IconHelp = ({ size = 24, color = textColor.primary }) => (
   <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
     <View style={{ 
       width: size * 0.7, 
@@ -141,10 +141,10 @@ const ProfileScreen = () => {
     recentItems: 8,
   };
 
-  const renderSettingItem = (icon, title, description, hasToggle = false, isToggled = false) => (
+  const renderSettingItem = (icon: React.ReactNode, title: string, description: string, hasToggle = false, isToggled = false) => (
     <TouchableOpacity
       style={{
-        backgroundColor: COLORS.lightBlack,
+        backgroundColor: COLORS.softIvory,
         borderRadius: 12,
         padding: 15,
         marginBottom: 15,
@@ -153,7 +153,7 @@ const ProfileScreen = () => {
       }}
     >
       <View style={{ 
-        backgroundColor: COLORS.obsidianBlack, 
+        backgroundColor: COLORS.softIvory, 
         padding: 10, 
         borderRadius: 10, 
         marginRight: 15 
@@ -161,13 +161,13 @@ const ProfileScreen = () => {
         {icon}
       </View>
       <View style={{ flex: 1 }}>
-        <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>{title}</Text>
-        <Text style={{ color: COLORS.white, fontSize: 13, marginTop: 2 }}>{description}</Text>
+        <Text style={{ color: COLORS.slateGray, fontWeight: 'bold', fontSize: 16 }}>{title}</Text>
+        <Text style={{ color: textColor.primary, fontSize: 13, marginTop: 2 }}>{description}</Text>
       </View>
       {hasToggle && (
         <Switch
-          trackColor={{ false: '#3e3e3e', true: COLORS.white }}
-          thumbColor={isToggled ? COLORS.white : '#f4f3f4'}
+          trackColor={{ false: '#3e3e3e', true: textColor.primary }}
+          thumbColor={isToggled ? textColor.primary : '#f4f3f4'}
           ios_backgroundColor="#3e3e3e"
           value={isToggled}
         />
@@ -176,8 +176,8 @@ const ProfileScreen = () => {
   );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.obsidianBlack }}>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.obsidianBlack} />
+    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.softIvory }}>
+      <StatusBar barStyle="light-content" backgroundColor={COLORS.softIvory} />
       
       {/* Header with gradient background */}
       <View
@@ -205,19 +205,19 @@ const ProfileScreen = () => {
               width: 100,
               height: 100,
               borderRadius: 50,
-              backgroundColor: COLORS.white,
+              backgroundColor: textColor.primary,
               alignItems: 'center',
               justifyContent: 'center',
               marginBottom: 15
             }}
           >
-            <Text style={{ fontSize: 36, fontWeight: 'bold', color: COLORS.obsidianBlack }}>
+            <Text style={{ fontSize: 36, fontWeight: 'bold', color: COLORS.softIvory }}>
               {userData.name.charAt(0)}
             </Text>
           </View>
-          <Text style={{ color: '#fff', fontSize: 22, fontWeight: 'bold' }}>{userData.name}</Text>
-          <Text style={{ color: COLORS.white, fontSize: 14, marginTop: 5 }}>{userData.email}</Text>
-          <Text style={{ color: COLORS.white, fontSize: 14, marginTop: 5 }}>Member since {userData.memberSince}</Text>
+          <Text style={{ color: COLORS.slateGray, fontSize: 22, fontWeight: 'bold' }}>{userData.name}</Text>
+          <Text style={{ color: textColor.primary, fontSize: 14, marginTop: 5 }}>{userData.email}</Text>
+          <Text style={{ color: textColor.primary, fontSize: 14, marginTop: 5 }}>Member since {userData.memberSince}</Text>
         </View>
 
         {/* Stats */}
@@ -225,33 +225,33 @@ const ProfileScreen = () => {
           flexDirection: 'row', 
           justifyContent: 'space-around', 
           marginBottom: 30,
-          backgroundColor: COLORS.lightBlack,
+          backgroundColor: COLORS.softIvory,
           borderRadius: 15,
           padding: 15
         }}>
           <View style={{ alignItems: 'center' }}>
-            <Text style={{ color: '#fff', fontSize: 22, fontWeight: 'bold' }}>{userData.collectionItems}</Text>
-            <Text style={{ color: COLORS.white, fontSize: 14 }}>Collection</Text>
+            <Text style={{ color: COLORS.slateGray, fontSize: 22, fontWeight: 'bold' }}>{userData.collectionItems}</Text>
+            <Text style={{ color: textColor.primary, fontSize: 14 }}>Collection</Text>
           </View>
-          <View style={{ width: 1, backgroundColor: COLORS.white, height: 40 }} />
+          <View style={{ width: 1, backgroundColor: textColor.primary, height: 40 }} />
           <View style={{ alignItems: 'center' }}>
-            <Text style={{ color: '#fff', fontSize: 22, fontWeight: 'bold' }}>{userData.recentItems}</Text>
-            <Text style={{ color: COLORS.white, fontSize: 14 }}>Recent</Text>
+            <Text style={{ color: COLORS.slateGray, fontSize: 22, fontWeight: 'bold' }}>{userData.recentItems}</Text>
+            <Text style={{ color: textColor.primary, fontSize: 14 }}>Recent</Text>
           </View>
         </View>
 
         {/* Settings */}
-        <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold', marginBottom: 15 }}>Settings</Text>
+        <Text style={{ color: COLORS.slateGray, fontSize: 18, fontWeight: 'bold', marginBottom: 15 }}>Settings</Text>
         
         {renderSettingItem(
-          <IconCollection color={COLORS.white} />,
+          <IconCollection color={textColor.primary} />,
           "My Collection",
           "View and manage your items",
           false
         )}
         
         {renderSettingItem(
-          <IconNotification color={COLORS.white} />,
+          <IconNotification color={textColor.primary} />,
           "Notifications",
           "Manage your alert preferences",
           true,
@@ -259,7 +259,7 @@ const ProfileScreen = () => {
         )}
         
         {renderSettingItem(
-          <IconHelp color={COLORS.white} />,
+          <IconHelp color={textColor.primary} />,
           "Help & Support",
           "FAQs, contact support",
           false
@@ -268,7 +268,7 @@ const ProfileScreen = () => {
         {/* Sign out button */}
         <TouchableOpacity
           style={{
-            backgroundColor: COLORS.lightBlack,
+            backgroundColor: COLORS.softIvory,
             borderRadius: 12,
             padding: 15,
             marginTop: 15,
