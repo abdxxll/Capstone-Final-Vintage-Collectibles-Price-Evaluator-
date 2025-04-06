@@ -167,8 +167,13 @@ const [showValuationModal, setShowValuationModal] = useState(false);
         })
       }).then(res => res.json());
   
-      const detectedItem =
-      result?.outputs?.[0]?.predictions?.predictions?.[0]?.class || "Unknown";
+      const detectedItem = result?.outputs?.[0]?.model_predictions?.predictions?.[0]?.class || "Unknown";
+
+
+
+      console.log("Roboflow result:", JSON.stringify(result, null, 2));
+
+    
 
     // Show detection modal
     setDetectedLabel(detectedItem);
@@ -180,6 +185,12 @@ const [showValuationModal, setShowValuationModal] = useState(false);
       .from("rewind_scans")
       .update({ roboflow_results: result })
       .eq("scan_id", scanId);
+
+
+// 🔥 NEW: Fetch metadata to display in modal
+await fetchMetadata(detectedItem);
+
+
 
     // 👇 simulate price model / valuation
     setTimeout(() => {
@@ -567,30 +578,40 @@ const [showValuationModal, setShowValuationModal] = useState(false);
       </CameraView>
     );
   };
-  const fetchMetadata = async (itemTitle: string) => {
-    if (!itemTitle) return;
+  
+  const fetchMetadata = async (itemName: string) => {
+    if (!itemName) return;
   
     try {
       const { data, error } = await supabase
-        .from("product_metadata_test0")  // Replace with your actual table name
-        .select("title, price, details") // Ensure "details" is selected
-        .eq("title", itemTitle)
-        .single(); // Fetch only one matching record
+        .from("rewind_core_items_v2")
+        .select(`
+          name, type, category, description, antique, features, set_info, indoor_outdoor, original_or_reproduction,
+          rewind_price, discount, estimated_value, is_bid,
+          period, style, culture, designer, manufacturer, model_number, country_of_origin, provenance_date,
+          color, condition, materials, dimensions,
+          location, source_url,
+          origin_notes, condition_notes, originality, provenance_notes, special_flags, pricing_notes, owner_notes
+        `)
+        .ilike("name", `%${itemName}%`)
+        .limit(1)
+        .single();
   
-      if (error) throw error;
-  
-      if (data && data.details) {
-        // Parse JSONB "details" column
-        const details = data.details; // Supabase returns JSONB as an object in JavaScript
-  
-        setMetadata({
-          title: data.title,
-          price: data.price,
-          ...details, // Spread the JSONB object into metadata state
-        });
-      } else {
+      if (error || !data) {
+        console.warn("No metadata found for:", itemName);
         setMetadata(null);
+        return;
       }
+  
+      // Filter only non-null entries
+      const filteredMetadata = Object.entries(data).reduce((acc, [key, value]) => {
+        if (value !== null && value !== undefined && value !== "") {
+          acc[key] = value;
+        }
+        return acc;
+      }, {} as Record<string, any>);
+  
+      setMetadata(filteredMetadata);
     } catch (err) {
       console.error("Error fetching metadata:", err);
       setMetadata(null);
