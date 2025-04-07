@@ -6,20 +6,20 @@ import {
   CameraView,
   useCameraPermissions,
 } from "expo-camera";
+import { router } from "expo-router";
 import { useRef, useState } from "react";
 import {
   ActivityIndicator,
   Animated,
   Button,
   Image,
-  Linking,
   Modal,
   Pressable,
   StyleSheet,
   Text,
   View
 } from "react-native";
-import { GestureHandlerRootView, ScrollView, TouchableOpacity } from "react-native-gesture-handler";
+import { GestureHandlerRootView, TouchableOpacity } from "react-native-gesture-handler";
 import { COLORS, textColor } from "../../styles/theme";
 import { supabase } from "../../supabaseClient";
 
@@ -156,6 +156,8 @@ const [showValuationModal, setShowValuationModal] = useState(false);
         reader.readAsDataURL(blob);
       });
       const base64Image = base64.split(",")[1];
+     
+  
   
       // Roboflow request
       const result = await fetch("https://detect.roboflow.com/infer/workflows/sultup/detect-and-classify", {
@@ -188,7 +190,21 @@ const [showValuationModal, setShowValuationModal] = useState(false);
 
 
 // 🔥 NEW: Fetch metadata to display in modal
-await fetchMetadata(detectedItem);
+// Fetch imageUrl from rewind_scans by scanId
+const { data: scanRow, error: scanError } = await supabase
+  .from("rewind_scans")
+  .select("image_url")
+  .eq("scan_id", scanId)
+  .single();
+
+if (scanError || !scanRow?.image_url) {
+  console.error("Failed to fetch image URL from rewind_scans:", scanError);
+  return;
+}
+
+await fetchMetadata(detectedItem, scanRow.image_url);
+
+
 
 
 
@@ -315,197 +331,117 @@ await fetchMetadata(detectedItem);
   
   const renderResults = () => {
     return (
-      
       <Modal visible={!!metadata} transparent animationType="slide">
-      <GestureHandlerRootView style={{ flex: 1 }}>
-    
-        {metadata && (
-           <View
-           style={{
-             flex: 1,
-             backgroundColor: "rgba(0,0,0,0.85)",
-             justifyContent: "center",
-             alignItems: "center",
-           }}
-         >
-           <View
-             style={{
-               width: "90%",
-               backgroundColor: COLORS.softIvory,
-               borderRadius: 20,
-               padding: 0,
-               overflow: "hidden",
-             }}
-           >
-             {/* Header with Close Button */}
-             <View
-               style={{
-                 flexDirection: "row",
-                 justifyContent: "space-between",
-                 alignItems: "center",
-                 paddingHorizontal: 20,
-                 paddingTop: 15,
-                 paddingBottom: 10,
-               }}
-             >
-               <Text
-                 style={{
-                   fontSize: 22,
-                   fontWeight: "bold",
-                   color: textColor.primary,
-                   flex: 1,
-                 }}
-                 numberOfLines={2}
-               >
-                 {metadata.title}
-               </Text>
-               <TouchableOpacity
-                 onPress={() => setMetadata(null)}
-                 style={{ padding: 5 }}
-               >
-                 <Text style={{ fontSize: 24, color: textColor.primary }}>
-                   ✖
-                 </Text>
-               </TouchableOpacity>
-             </View>
- 
-             {/* Display User's Captured Image */}
-             <Image
-               source={{ uri: uri || '' }}
-               style={{ width: "100%", height: 240, resizeMode: "cover" }}
-             />
- 
-             {/* Price Badge */}
-             {metadata.price && (
-               <View
-                 style={{
-                   position: "absolute",
-                   top: 240,
-                   right: 20,
-                   backgroundColor: COLORS.lightLime,
-                   paddingVertical: 8,
-                   paddingHorizontal: 15,
-                   borderRadius: 20,
-                   shadowColor: "#000",
-                   shadowOffset: { width: 0, height: 2 },
-                   shadowOpacity: 0.3,
-                   shadowRadius: 4,
-                   elevation: 5,
-                   transform: [{ translateY: -20 }],
-                 }}
-               >
-                 <Text
-                   style={{ fontSize: 18, fontWeight: "bold", color: textColor.primary }}
-                 >
-                   {metadata.price}
-                 </Text>
-               </View>
-             )}
- 
-             {/* Product Details */}
-             <ScrollView style={{ maxHeight: 350, paddingHorizontal: 20, paddingTop: 15 }}>
-               {/* Description */}
-               <Text style={{ color: COLORS.softPurple, marginBottom: 20, lineHeight: 22 }}>
-                 {metadata.description}
-               </Text>
- 
-               {/* Details in Two Columns */}
-               <View style={{ flexDirection: "row", marginBottom: 20 }}>
-                 {/* Left Column */}
-                 <View style={{ flex: 1, marginRight: 10 }}>
-                   <DetailItem label="Style" value={metadata.style} />
-                   <DetailItem label="Period" value={metadata.period} />
-                   <DetailItem label="Manufacturer" value={metadata.manufacturer} />
-                   <DetailItem label="Materials" value={metadata.materials?.join(", ")} />
-                 </View>
- 
-                 {/* Right Column */}
-                 <View style={{ flex: 1, marginLeft: 10 }}>
-                   <DetailItem label="Place of Origin" value={metadata.place_of_origin} />
-                   <DetailItem label="Condition" value={metadata.condition} />
-                   <DetailItem label="Dimensions" value={metadata.dimensions} />
-                   <DetailItem label="Date of Manufacture" value={metadata.date_of_manufacture} />
-                 </View>
-               </View>
- 
-               {/* Horizontal Divider */}
-               <View style={{ height: 1, backgroundColor: "rgba(255,255,255,0.1)", marginVertical: 10 }} />
- 
-               {/* Reference Information */}
-               <View style={{ marginBottom: 20 }}>
-                 <DetailItem label="Reference Number" value={metadata.reference_number} />
-                 <DetailItem label="Seller Location" value={metadata.seller_location} />
-               </View>
- 
-               {/* View More Button */}
-               <TouchableOpacity
-                 style={{
-                   backgroundColor: COLORS.lightLime,
-                   paddingVertical: 15,
-                   borderRadius: 10,
-                   alignItems: "center",
-                   marginBottom: 25,
-                 }}
-                 onPress={() => metadata.link && Linking.openURL(metadata.link)}
-               >
-                 <Text style={{ color: textColor.primary, fontWeight: "bold", fontSize: 16 }}>
-                   View Product
-                 </Text>
-               </TouchableOpacity>
-             </ScrollView>
-           </View>
-           <Modal visible={showValuationModal} transparent animationType="fade">
-  <View
-    style={{
-      flex: 1,
-      backgroundColor: "rgba(0,0,0,0.8)",
-      justifyContent: "center",
-      alignItems: "center",
-      padding: 30,
-    }}
-  >
-    <View
-      style={{
-        backgroundColor: "#fff",
-        padding: 30,
-        borderRadius: 20,
-        alignItems: "center",
-        width: "90%",
-      }}
-    >
-      <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 15 }}>
-        Detected as: {detectedLabel}
-      </Text>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.85)", justifyContent: "center", alignItems: "center" }}>
+            {metadata && (
+              <View
+                style={{
+                  width: "90%",
+                  backgroundColor: COLORS.softIvory,
+                  borderRadius: 20,
+                  paddingVertical: 20,
+                  paddingHorizontal: 25,
+                  alignItems: "center",
+                }}
+              >
+                {/* Image */}
+                <View
+                  style={{
+                    width: 180,
+                    height: 250,
+                    marginBottom: 25,
+                    borderRadius: 10,
+                    shadowColor: "#000",
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 5,
+                    elevation: 10,
+                    overflow: "hidden",
+                  }}
+                >
+                  <Image
+                    source={{ uri: uri || '' }}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      resizeMode: "contain",
+                    }}
+                  />
+                </View>
+  
+                {/* Title */}
+                <Text
+                  style={{
+                    fontSize: 22,
+                    fontWeight: "600",
+                    color: textColor.primary,
+                    textAlign: "center",
+                    marginBottom: 10,
+                  }}
+                >
+                  {metadata.title || "Untitled Item"}
+                </Text>
+  
+                {/* Price as a clickable button */}
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: "#001F2D",
+                    paddingVertical: 10,
+                    paddingHorizontal: 25,
+                    borderRadius: 12,
+                    marginBottom: 20,
+                  }}
+                  onPress={() => {
+                    router.push({ pathname: "/screens/source", params: { itemId: metadata.item_id } });
 
-      {valuationLoading ? (
-        <>
-          <ActivityIndicator size="large" color="#333" />
-          <Text style={{ marginTop: 10, fontSize: 16 }}>
-            Estimating valuation...
-          </Text>
-        </>
-      ) : (
-        <>
-          <Text style={{ marginTop: 10, fontSize: 16 }}>
-            Valuation complete!
-          </Text>
-          <Button title="Close" onPress={() => setShowValuationModal(false)} />
-        </>
-      )}
-    </View>
-  </View>
-</Modal>
 
-         </View>
-        )}
+                    console.log("Navigate to price sources");
+                  }}
+                >
+                  <Text style={{ fontSize: 20, fontWeight: "bold", color: "white" }}>
+  ${metadata.rewind_price ? Number(metadata.rewind_price).toLocaleString() : "N/A"}
+</Text>
+
+                </TouchableOpacity>
+  
+                {/* Material and Era */}
+                <View style={{ flexDirection: "row", width: "100%", justifyContent: "space-between", marginBottom: 30 }}>
+                  <View>
+                    <Text style={{ fontSize: 14, fontWeight: "bold", color: textColor.secondary }}>Material</Text>
+                    <Text style={{ fontSize: 16, color: textColor.primary }}>{metadata.materials?.[0] || "N/A"}</Text>
+                  </View>
+                  <View>
+                    <Text style={{ fontSize: 14, fontWeight: "bold", color: textColor.secondary }}>Era</Text>
+                    <Text style={{ fontSize: 16, color: textColor.primary }}>{metadata.period || "Unknown"}</Text>
+                  </View>
+                </View>
+  
+                {/* Confirm Button */}
+                <TouchableOpacity
+                  onPress={() => setMetadata(null)}
+                  style={{
+                    backgroundColor: "#001F2D",
+                    paddingVertical: 15,
+                    borderRadius: 10,
+                    width: "100%",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }}>Confirm</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
         </GestureHandlerRootView>
       </Modal>
     );
   };
   
+  
   const renderPicture = () => {
     if (!uri) return null;
-    
+  
     return (
       <View style={styles.previewContainer}>
         <Image source={{ uri }} style={styles.preview} />
@@ -520,17 +456,20 @@ await fetchMetadata(detectedItem);
             <Text style={styles.errorText}>{error}</Text>
           </View>
         )}
-        <Button onPress={() => {
-          setUri(null);
-          setInferenceResults(null);
-          setDetectedClass(null);
-          setError(null);
-          slideDown();
-        }} title="Take another picture" />
-        {renderResults()}
+        <Button
+          onPress={() => {
+            setUri(null);
+            setInferenceResults(null);
+            setDetectedClass(null);
+            setError(null);
+            slideDown();
+          }}
+          title="Take another picture"
+        />
       </View>
     );
   };
+  
 
   const renderCamera = () => {
     return (
@@ -542,6 +481,14 @@ await fetchMetadata(detectedItem);
         mute={false}
         responsiveOrientationWhenOrientationLocked
       >
+        {/* 🔙 Home button in top-left corner */}
+        <View style={styles.navBar}>
+          <TouchableOpacity onPress={() => router.push("/")}>
+            <AntDesign name="arrowleft" size={28} color="white" />
+          </TouchableOpacity>
+        </View>
+  
+        {/* Camera controls */}
         <View style={styles.shutterContainer}>
           <Pressable onPress={toggleMode}>
             {mode === "picture" ? (
@@ -579,19 +526,21 @@ await fetchMetadata(detectedItem);
     );
   };
   
-  const fetchMetadata = async (itemName: string) => {
+  
+         
+  const fetchMetadata = async (itemName: string, imageUrl: string) => {
     if (!itemName) return;
   
     try {
       const { data, error } = await supabase
         .from("rewind_core_items_v2")
         .select(`
-          name, type, category, description, antique, features, set_info, indoor_outdoor, original_or_reproduction,
-          rewind_price, discount, estimated_value, is_bid,
-          period, style, culture, designer, manufacturer, model_number, country_of_origin, provenance_date,
-          color, condition, materials, dimensions,
-          location, source_url,
-          origin_notes, condition_notes, originality, provenance_notes, special_flags, pricing_notes, owner_notes
+          name, item_id, materials, period,
+          rewind_price, style, culture, designer,
+          manufacturer, model_number, country_of_origin,
+          provenance_date, condition, dimensions, location,
+          source_url, origin_notes, condition_notes,
+          originality, provenance_notes, pricing_notes, owner_notes
         `)
         .ilike("name", `%${itemName}%`)
         .limit(1)
@@ -599,11 +548,9 @@ await fetchMetadata(detectedItem);
   
       if (error || !data) {
         console.warn("No metadata found for:", itemName);
-        setMetadata(null);
         return;
       }
   
-      // Filter only non-null entries
       const filteredMetadata = Object.entries(data).reduce((acc, [key, value]) => {
         if (value !== null && value !== undefined && value !== "") {
           acc[key] = value;
@@ -611,20 +558,53 @@ await fetchMetadata(detectedItem);
         return acc;
       }, {} as Record<string, any>);
   
-      setMetadata(filteredMetadata);
+      router.push({
+        pathname: "/screens/results",
+        params: {
+          imageUri: imageUrl, // ✅ public URL from rewind_scans
+          itemId: filteredMetadata.item_id,
+          itemName: filteredMetadata.name,
+          material: filteredMetadata.materials?.[0],
+          era: filteredMetadata.period,
+          rewindPrice: filteredMetadata.rewind_price,
+          style: filteredMetadata.style,
+          culture: filteredMetadata.culture,
+          designer: filteredMetadata.designer,
+          manufacturer: filteredMetadata.manufacturer,
+          model_number: filteredMetadata.model_number,
+          country_of_origin: filteredMetadata.country_of_origin,
+          provenance_date: filteredMetadata.provenance_date,
+          condition: filteredMetadata.condition,
+          dimensions: filteredMetadata.dimensions,
+          location: filteredMetadata.location,
+          source_url: filteredMetadata.source_url,
+          origin_notes: filteredMetadata.origin_notes,
+          condition_notes: filteredMetadata.condition_notes,
+          originality: filteredMetadata.originality,
+          provenance_notes: filteredMetadata.provenance_notes,
+          pricing_notes: filteredMetadata.pricing_notes,
+          owner_notes: filteredMetadata.owner_notes,
+          materials: JSON.stringify(filteredMetadata.materials || []),
+        },
+      });
     } catch (err) {
       console.error("Error fetching metadata:", err);
-      setMetadata(null);
     }
   };
+  
   
     
 
   return (
-    <View style={styles.container}>
-      {uri ? renderPicture() : renderCamera()}
-    </View>
-  );
+ 
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <View style={styles.container}>
+          {uri ? renderPicture() : renderCamera()}
+        </View>
+      </GestureHandlerRootView>
+    );
+    
+
 }
 
 const styles = StyleSheet.create({
@@ -729,4 +709,14 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "500",
   },
+  navBar: {
+    position: "absolute",
+    top: 50,
+    left: 20,
+    zIndex: 10,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    padding: 8,
+    borderRadius: 30,
+  },
+  
 });

@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons"; // Make sure to install expo vector icons
+import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -150,14 +151,17 @@ export default function HistoryScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
-      
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Your Scans</Text>
-        <TouchableOpacity style={styles.filterButton}>
-          <Ionicons name="filter" size={22} color="#333" />
-        </TouchableOpacity>
-      </View>
+      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+    <View style={styles.header}>
+    <TouchableOpacity onPress={() => router.push("/")} style={styles.backButton}>
+      <Ionicons name="arrow-back" size={24} color="#333" />
+    </TouchableOpacity>
+    <Text style={styles.headerTitle}>Your Scans</Text>
+    <TouchableOpacity style={styles.filterButton}>
+      <Ionicons name="filter" size={22} color="#333" />
+    </TouchableOpacity>
+  </View>
+  
       
       {scans.length === 0 ? (
         <View style={styles.emptyContainer}>
@@ -178,132 +182,107 @@ export default function HistoryScreen() {
       )}
 
       {/* Modal with Scan Details */}
-      <Modal visible={!!selectedScan} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <TouchableOpacity 
-              style={styles.closeButton}
-              onPress={() => setSelectedScan(null)}
-            >
-              <Ionicons name="close" size={24} color="#fff" />
-            </TouchableOpacity>
-            
-            <ScrollView showsVerticalScrollIndicator={false}>
-              <Image
-                source={{ uri: selectedScan?.image_url }}
-                style={styles.modalImage}
-                resizeMode="cover"
-              />
-              
-              <View style={styles.modalBody}>
-                <View style={styles.modalHeader}>
-                  <Text style={styles.modalTitle}>
-                    {selectedScan?.roboflow_results?.outputs?.[0]?.model_predictions?.predictions?.[0]?.class || "Unknown"}
-                  </Text>
-                  
-                  {selectedScan?.metadata?.price && (
-                    <View style={styles.priceTag}>
-                      <Text style={styles.priceText}>
-                        {selectedScan.metadata.price}
-                      </Text>
-                    </View>
-                  )}
-                </View>
-                
-                {selectedScan?.metadata?.description && (
-                  <Text style={styles.description}>
-                    {selectedScan?.metadata?.description}
-                  </Text>
-                )}
-                
-                <View style={styles.divider} />
-                
-                <Text style={styles.sectionTitle}>Details</Text>
-                
-                <View style={styles.detailsContainer}>
-                  <DetailItem 
-                    label="Manufacturer" 
-                    value={selectedScan?.metadata?.manufacturer} 
-                    icon="business-outline"
-                  />
-                  <DetailItem 
-                    label="Designer" 
-                    value={selectedScan?.metadata?.designer} 
-                    icon="person-outline"
-                  />
-                  <DetailItem 
-                    label="Dimensions" 
-                    value={selectedScan?.metadata?.dimensions} 
-                    icon="resize-outline"
-                  />
-                  <DetailItem 
-                    label="Style" 
-                    value={selectedScan?.metadata?.style} 
-                    icon="color-palette-outline"
-                  />
-                  <DetailItem 
-                    label="Materials" 
-                    value={selectedScan?.metadata?.materials} 
-                    icon="layers-outline"
-                  />
-                  <DetailItem 
-                    label="Place of Origin" 
-                    value={selectedScan?.metadata?.place_of_origin} 
-                    icon="location-outline"
-                  />
-                  <DetailItem 
-                    label="Period" 
-                    value={selectedScan?.metadata?.period} 
-                    icon="time-outline"
-                  />
-                  <DetailItem 
-                    label="Date of Manufacture" 
-                    value={selectedScan?.metadata?.date_of_manufacture} 
-                    icon="calendar-outline"
-                  />
-                  <DetailItem 
-                    label="Condition" 
-                    value={selectedScan?.metadata?.condition} 
-                    icon="fitness-outline"
-                  />
-                  <DetailItem 
-                    label="Seller Location" 
-                    value={selectedScan?.metadata?.seller_location} 
-                    icon="navigate-outline"
-                  />
-                  <DetailItem 
-                    label="Reference Number" 
-                    value={selectedScan?.metadata?.reference_number} 
-                    icon="barcode-outline"
-                  />
-                  <DetailItem 
-                    label="Category" 
-                    value={selectedScan?.metadata?.category} 
-                    icon="folder-outline"
-                  />
-                  <DetailItem 
-                    label="Acquisition Date" 
-                    value={selectedScan?.metadata?.acquisition_date} 
-                    icon="calendar-outline"
-                  />
-                </View>
-                
-                {selectedScan?.metadata?.link && (
-                  <TouchableOpacity
-                    onPress={() => Linking.openURL(selectedScan.metadata.link)}
-                    style={styles.linkButton}
-                  >
-                    <Text style={styles.linkButtonText}>
-                      View Product Details
-                    </Text>
-                    <Ionicons name="open-outline" size={18} color="#fff" />
-                  </TouchableOpacity>
-                )}
-              </View>
-            </ScrollView>
+      <Modal visible={!!selectedScan} transparent animationType="slide">
+  <View style={styles.modalOverlay}>
+    <View style={styles.modalContent}>
+      <ScrollView>
+        {/* Back Button in Modal */}
+        <TouchableOpacity
+          style={{ padding: 16 }}
+          onPress={() => setSelectedScan(null)}
+        >
+          <Ionicons name="arrow-back" size={24} color="#333" />
+        </TouchableOpacity>
+
+        {/* Image */}
+        <Image
+          source={{ uri: selectedScan?.image_url }}
+          style={{ width: "100%", height: 240, resizeMode: "cover" }}
+        />
+
+        {/* Price Tag */}
+        {selectedScan?.metadata?.rewind_price && (
+          <View
+            style={{
+              position: "absolute",
+              top: 210,
+              right: 20,
+              backgroundColor: "#CDE990",
+              paddingVertical: 6,
+              paddingHorizontal: 14,
+              borderRadius: 20,
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 4,
+              elevation: 5,
+            }}
+          >
+            <Text style={{ fontSize: 16, fontWeight: "bold", color: "#333" }}>
+              ${Number(selectedScan.metadata.rewind_price).toLocaleString()}
+            </Text>
+          </View>
+        )}
+
+        {/* Description */}
+        {selectedScan?.metadata?.description && (
+          <Text style={{ padding: 20, fontSize: 15, color: "#666", lineHeight: 22 }}>
+            {selectedScan.metadata.description}
+          </Text>
+        )}
+
+        {/* Two Columns of Details */}
+        <View style={{ flexDirection: "row", paddingHorizontal: 20 }}>
+          <View style={{ flex: 1, marginRight: 10 }}>
+            <DetailItem label="Style" value={selectedScan?.metadata?.style} />
+            <DetailItem label="Period" value={selectedScan?.metadata?.period} />
+            <DetailItem label="Manufacturer" value={selectedScan?.metadata?.manufacturer} />
+            <DetailItem
+              label="Materials"
+              value={
+                Array.isArray(selectedScan?.metadata?.materials)
+                  ? selectedScan?.metadata?.materials.join(", ")
+                  : selectedScan?.metadata?.materials
+              }
+            />
+          </View>
+
+          <View style={{ flex: 1, marginLeft: 10 }}>
+            <DetailItem label="Country of Origin" value={selectedScan?.metadata?.place_of_origin} />
+            <DetailItem label="Condition" value={selectedScan?.metadata?.condition} />
+            <DetailItem label="Dimensions" value={selectedScan?.metadata?.dimensions} />
+            <DetailItem label="Provenance Date" value={selectedScan?.metadata?.provenance_date} />
           </View>
         </View>
-      </Modal>
+
+        {/* Reference Info */}
+        <View style={{ paddingHorizontal: 20, marginTop: 20 }}>
+          <DetailItem label="Reference Number" value={selectedScan?.metadata?.reference_number} />
+          <DetailItem label="Seller Location" value={selectedScan?.metadata?.seller_location} />
+        </View>
+
+        {/* External Link */}
+        {selectedScan?.metadata?.link && (
+          <TouchableOpacity
+            onPress={() => Linking.openURL(selectedScan.metadata.link)}
+            style={{
+              backgroundColor: "#CDE990",
+              margin: 20,
+              borderRadius: 12,
+              paddingVertical: 14,
+              alignItems: "center",
+            }}
+          >
+            <Text style={{ fontWeight: "bold", fontSize: 16, color: "#333" }}>
+              View Product
+            </Text>
+          </TouchableOpacity>
+        )}
+      </ScrollView>
+    </View>
+  </View>
+</Modal>
+
     </View>
   );
 }
@@ -538,4 +517,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginRight: 8,
   },
+  backButton: {
+    marginRight: 10,
+  },
+  
 });

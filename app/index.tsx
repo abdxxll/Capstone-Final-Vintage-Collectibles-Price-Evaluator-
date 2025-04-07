@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -10,7 +11,8 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import { COLORS, textColor } from "../../styles/theme";
+import { COLORS, textColor } from "../styles/theme";
+
 
 const { width, height } = Dimensions.get("window");
 
@@ -86,6 +88,19 @@ const HomeScreen = () => {
           </TouchableOpacity>
         </Animated.View>
       </View>
+
+      {/* Footer */}
+      <View style={{ flexDirection: "row", justifyContent: "space-around", paddingTop: 12 }}>
+  <TouchableOpacity onPress={() => router.push("/")} style={{ alignItems: "center" }}>
+    <Ionicons name="home-outline" size={24} color={textColor.primary} />
+    <Text style={{ fontSize: 12, color: textColor.primary }}>Home</Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity onPress={() => router.push("/screens/history")} style={{ alignItems: "center" }}>
+    <Ionicons name="time-outline" size={24} color={textColor.secondary} />
+    <Text style={{ fontSize: 12, color: textColor.secondary }}>History</Text>
+  </TouchableOpacity>
+</View>
 
     
     </SafeAreaView>
