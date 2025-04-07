@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -11,6 +12,7 @@ import {
   View
 } from "react-native";
 import { COLORS, textColor } from "../styles/theme";
+
 
 const { width, height } = Dimensions.get("window");
 
@@ -50,7 +52,7 @@ const HomeScreen = () => {
       <View style={{ paddingHorizontal: 20, paddingVertical: 15, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
         <Text style={{ fontSize: 20, fontWeight: "bold", color: textColor.primary }}>Capstone</Text>
         <TouchableOpacity
-          onPress={() => router.push("/screens/profile")}
+          onPress={() => router.push("/screens/LoginScreen")}
           style={{ backgroundColor: COLORS.softIvory, padding: 8, borderRadius: 50 }}
         >
           <IconUser />
@@ -88,22 +90,19 @@ const HomeScreen = () => {
       </View>
 
       {/* Footer */}
-      <View style={{ flexDirection: "row", justifyContent: "space-around", paddingVertical: 12, backgroundColor: COLORS.softIvory, borderTopWidth: 1, borderTopColor: COLORS.charcoal }}>
-        {/* <TouchableOpacity    onPress={() => router.push("/screens/camera")} style={{ alignItems: "center" }}>
-          <View style={{ backgroundColor: COLORS.softIvory, padding: 5, borderRadius: 30, marginBottom: 5 }}>
-          <AntDesign name="videocamera" size={24} color="charcoalBrown" />
-          </View>
-          <Text style={{ fontSize: 12, color: COLORS.softPurple }}>Scan</Text>
-        </TouchableOpacity> */}
-        <TouchableOpacity    onPress={() => router.push("/screens/collection")} style={{ alignItems: "center", opacity: 0.7 }}>
-          <View style={{ padding: 5, borderRadius: 30, marginBottom: 5 }}>
-          <AntDesign name="folderopen" size={24} color="charcoalBrown" />
-          </View>
-          <Text style={{ fontSize: 12, color: COLORS.softPurple }}>Collection</Text>
-        </TouchableOpacity>
-  
+      <View style={{ flexDirection: "row", justifyContent: "space-around", paddingTop: 12 }}>
+  <TouchableOpacity onPress={() => router.push("/")} style={{ alignItems: "center" }}>
+    <Ionicons name="home-outline" size={24} color={textColor.primary} />
+    <Text style={{ fontSize: 12, color: textColor.primary }}>Home</Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity onPress={() => router.push("/screens/history")} style={{ alignItems: "center" }}>
+    <Ionicons name="time-outline" size={24} color={textColor.secondary} />
+    <Text style={{ fontSize: 12, color: textColor.secondary }}>History</Text>
+  </TouchableOpacity>
+</View>
+
     
-      </View>
     </SafeAreaView>
   );
 };
