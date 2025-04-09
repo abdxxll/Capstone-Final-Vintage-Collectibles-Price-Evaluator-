@@ -346,7 +346,7 @@ export default function Camera() {
                   }}
                   onPress={() => {
                     router.push({
-                      pathname: "/screens/source",
+                      pathname: "/app/source",
                       params: { itemId: metadata.item_id },
                     });
 
