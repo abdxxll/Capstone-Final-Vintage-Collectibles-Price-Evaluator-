@@ -1,14 +1,13 @@
-import { Ionicons } from "@expo/vector-icons";
+import { EvilIcons, Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-    Linking,
-    Modal,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
 import { COLORS, textColor } from "../../styles/theme";
 import { supabase } from "../../supabaseClient";
@@ -38,7 +37,7 @@ export default function PriceSources() {
 
     const { data: sourcesData, error: metadataError } = await supabase
       .from("rewind_item_metadata")
-      .select("*")
+      .select("id, metadata, source_name") 
       .eq("item_id", item.item_id)
       .order("created_at", { ascending: false });
 
@@ -49,26 +48,44 @@ export default function PriceSources() {
     }
   };
 
-  const SourceCard = ({ metadata }: { metadata: any }) => {
-    const name = metadata?.basic_info?.name || "Unnamed Item";
+  type SourceCardProps = {
+    metadata: any;
+    source_name?: string; // now passed from the Supabase row
+  };
+
+  
+  
+  const SourceCard = ({ metadata, source_name }: SourceCardProps) => {
+    const itemName = metadata?.basic_info?.name || "Unnamed Item";
     const price = metadata?.pricing?.price || null;
     const url = metadata?.source?.url;
-
+    const location = metadata?.location?.located_in || "Unknown";
+  
     return (
       <TouchableOpacity
-        style={styles.card}
+        style={styles.cardContainer}
         onPress={() => setSelectedSource(metadata)}
       >
-        <Text style={styles.cardTitle} numberOfLines={2}>{name}</Text>
-        {price && <Text style={styles.cardPrice}>${Number(price).toLocaleString()}</Text>}
-        {url && (
-          <TouchableOpacity onPress={() => Linking.openURL(url)}>
-            <Text style={styles.cardLink}>View Source ↗</Text>
-          </TouchableOpacity>
-        )}
+        <View style={styles.cardHeader}>
+          <Text style={styles.itemName} numberOfLines={2}>{itemName}</Text>
+          {price && <Text style={styles.price}>${Number(price).toLocaleString()}</Text>}
+        </View>
+  
+        <View style={styles.metaRow}>
+  <Text style={styles.sourceTag}>{source_name || "Unknown Source"}</Text>
+
+  <View style={styles.locationRow}>
+    <EvilIcons name="location" size={20}  color={textColor.primary} />
+    <Text style={styles.locationText}> {location?.replace(", United States", " ")}</Text>
+  </View>
+</View>
+
+  
+       
       </TouchableOpacity>
     );
   };
+  
 
   const renderMetadataModal = () => {
     if (!selectedSource) return null;
@@ -129,8 +146,9 @@ export default function PriceSources() {
           <Text style={styles.emptyText}>No sources found for this item.</Text>
         ) : (
           sources.map((s) => (
-            <SourceCard key={s.id} metadata={s.metadata} />
+            <SourceCard key={s.id} metadata={s.metadata} source_name={s.source_name} />
           ))
+          
         )}
       </ScrollView>
 
@@ -142,11 +160,11 @@ export default function PriceSources() {
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: COLORS.softIvory,
+      backgroundColor: COLORS.primaryBackground,
       paddingHorizontal: 20,
     },
     navBar: {
-      paddingTop: 60,
+      paddingTop: 10,
       paddingBottom: 10,
       flexDirection: "row",
       alignItems: "center",
@@ -164,7 +182,7 @@ const styles = StyleSheet.create({
       marginTop: 40,
     },
     card: {
-      backgroundColor: "#fff",
+      backgroundColor: COLORS.secondaryBackground,
       padding: 15,
       borderRadius: 14,
       marginBottom: 15,
@@ -245,5 +263,82 @@ const styles = StyleSheet.create({
       fontSize: 16,
       color: textColor.primary,
     },
+    cardContainer: {
+      backgroundColor: COLORS.cardBackground,
+      padding: 16,
+      borderRadius: 16,
+      marginBottom: 16,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 6,
+      elevation: 4,
+    },
+    
+    cardHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      marginBottom: 8,
+    },
+    
+    itemName: {
+      flex: 1,
+      fontSize: 16,
+      fontWeight: "600",
+      color: textColor.primary,
+    },
+    
+    price: {
+      fontSize: 16,
+      fontWeight: "bold",
+      color: COLORS.antiqueBronze,
+      marginLeft: 12,
+    },
+    
+    metaRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginTop: 8,
+    
+    },
+    
+    sourceTag: {
+      backgroundColor: COLORS.lightLime,
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+      borderRadius: 8,
+      fontSize: 12,
+      color: "#2E2E2E",
+      fontWeight: "500",
+    },
+    
+    location: {
+      fontSize: 12,
+      color: "#666",
+    },
+    
+    viewSource: {
+      marginTop: 6,
+      fontSize: 14,
+      color: "#007AFF",
+      fontWeight: "500",
+    },
+   
+    locationRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 0, // if using NativeWind; otherwise use margin
+    },
+    
+    locationText: {
+      fontSize: 14,
+      color: textColor.primary,
+      marginTop: 1,
+      
+    // 👈 controls spacing between icon and text
+    },
+    
+    
   });
   

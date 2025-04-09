@@ -290,7 +290,7 @@ export default function Camera() {
               <View
                 style={{
                   width: "90%",
-                  backgroundColor: COLORS.softIvory,
+                  backgroundColor: COLORS.primaryBackground,
                   borderRadius: 20,
                   paddingVertical: 20,
                   paddingHorizontal: 25,
@@ -346,7 +346,7 @@ export default function Camera() {
                   }}
                   onPress={() => {
                     router.push({
-                      pathname: "/app/source",
+                      pathname: "../source",
                       params: { itemId: metadata.item_id },
                     });
 
@@ -470,7 +470,7 @@ export default function Camera() {
       >
         {/* 🔙 Home button in top-left corner */}
         <View style={styles.navBar}>
-          <TouchableOpacity onPress={() => router.push("/app")}>
+          <TouchableOpacity onPress={() => router.push("../index")}>
             <AntDesign name="arrowleft" size={28} color="white" />
           </TouchableOpacity>
         </View>
@@ -550,7 +550,7 @@ export default function Camera() {
       );
 
       router.push({
-        pathname: "/screens/results",
+        pathname: "../results",
         params: {
           imageUri: imageUrl,
           itemId: filteredMetadata.item_id,

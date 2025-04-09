@@ -44,15 +44,15 @@ const HomeScreen = () => {
   }, []);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.softIvory }}>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.softIvory} />
+    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.primaryBackground }}>
+      <StatusBar barStyle="light-content" backgroundColor={COLORS.primaryBackground} />
 
       {/* Header */}
       <View style={{ paddingHorizontal: 20, paddingVertical: 15, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
         <Text style={{ fontSize: 20, fontWeight: "bold", color: textColor.primary }}>Capstone</Text>
         <TouchableOpacity
-          onPress={() => router.push("/screens/LoginScreen")}
-          style={{ backgroundColor: COLORS.softIvory, padding: 8, borderRadius: 50 }}
+          onPress={() => router.push("../auth/LoginScreen")}
+          style={{ backgroundColor: COLORS.primaryBackground, padding: 8, borderRadius: 50 }}
         >
           <IconUser />
         </TouchableOpacity>
@@ -73,7 +73,7 @@ const HomeScreen = () => {
               width: 150,
               height: 150,
               borderRadius: 45,
-              backgroundColor: COLORS.softIvory,
+              backgroundColor: COLORS.primaryBackground,
               justifyContent: "center",
               alignItems: "center",
               elevation: 8,
@@ -90,7 +90,7 @@ const HomeScreen = () => {
 
       {/* Footer */}
       <View style={{ flexDirection: "row", justifyContent: "space-around", paddingTop: 12 }}>
-  <TouchableOpacity onPress={() => router.push({ pathname: "/app" })} style={{ alignItems: "center" }}>
+  <TouchableOpacity onPress={() => router.push({ pathname: "../index" })} style={{ alignItems: "center" }}>
     <Ionicons name="home-outline" size={24} color={textColor.primary} />
     <Text style={{ fontSize: 12, color: textColor.primary }}>Home</Text>
   </TouchableOpacity>

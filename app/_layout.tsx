@@ -27,7 +27,7 @@ export default function RootLayout() {
   useEffect(() => {
     if (!loading) {
       if (session) {
-        router.replace("/app");
+        router.replace("/screens");
       } else {
         router.replace("/auth/login");
       }

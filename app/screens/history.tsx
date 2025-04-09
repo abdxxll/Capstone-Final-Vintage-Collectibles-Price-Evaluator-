@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -132,6 +133,11 @@ export default function HistoryScreen() {
   if (loading) {
     return (
       <View style={styles.loaderContainer}>
+        <View style={styles.navBar}>
+        <TouchableOpacity onPress={() => router.back()}>
+          <Ionicons name="arrow-back" size={24} color={textColor.primary} />
+        </TouchableOpacity>
+      </View>
         <ActivityIndicator size="large" color={COLORS.lightLime} />
       </View>
     );
@@ -150,7 +156,14 @@ export default function HistoryScreen() {
 const styles = StyleSheet.create({
   container: {
     padding: 16,
-    backgroundColor: COLORS.softIvory,
+    backgroundColor: COLORS.primaryBackground,
+  },
+  navBar: {
+    paddingTop: 60,
+    paddingHorizontal: 20,
+    paddingBottom: 10,
+    flexDirection: "row",
+    alignItems: "center",
   },
   loaderContainer: {
     flex: 1,
