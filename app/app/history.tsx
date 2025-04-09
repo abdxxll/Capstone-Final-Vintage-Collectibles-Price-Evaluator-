@@ -153,7 +153,7 @@ export default function HistoryScreen() {
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#fff" />
     <View style={styles.header}>
-    <TouchableOpacity onPress={() => router.push("/")} style={styles.backButton}>
+    <TouchableOpacity onPress={() => router.push({ pathname: "/app" })} style={styles.backButton}>
       <Ionicons name="arrow-back" size={24} color="#333" />
     </TouchableOpacity>
     <Text style={styles.headerTitle}>Your Scans</Text>
@@ -181,7 +181,7 @@ export default function HistoryScreen() {
         />
       )}
 
-      {/* Modal with Scan Details */}
+
       <Modal visible={!!selectedScan} transparent animationType="slide">
   <View style={styles.modalOverlay}>
     <View style={styles.modalContent}>

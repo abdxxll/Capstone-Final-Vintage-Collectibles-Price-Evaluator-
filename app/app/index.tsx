@@ -11,12 +11,11 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import { COLORS, textColor } from "../styles/theme";
+import { COLORS, textColor } from "../../styles/theme";
 
 
 const { width, height } = Dimensions.get("window");
 
-// Updated Icons with Modern Colors
 const IconUser = () => (
   <View style={{ width: 24, height: 24, alignItems: "center" }}>
     <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: COLORS.softPurple, marginBottom: 2 }} />
@@ -91,7 +90,7 @@ const HomeScreen = () => {
 
       {/* Footer */}
       <View style={{ flexDirection: "row", justifyContent: "space-around", paddingTop: 12 }}>
-  <TouchableOpacity onPress={() => router.push("/")} style={{ alignItems: "center" }}>
+  <TouchableOpacity onPress={() => router.push({ pathname: "/app" })} style={{ alignItems: "center" }}>
     <Ionicons name="home-outline" size={24} color={textColor.primary} />
     <Text style={{ fontSize: 12, color: textColor.primary }}>Home</Text>
   </TouchableOpacity>

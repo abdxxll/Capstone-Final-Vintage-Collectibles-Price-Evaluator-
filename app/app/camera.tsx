@@ -1,4 +1,3 @@
-
 import { AntDesign, Feather, FontAwesome6 } from "@expo/vector-icons";
 import {
   CameraMode,
@@ -17,12 +16,14 @@ import {
   Pressable,
   StyleSheet,
   Text,
-  View
+  View,
 } from "react-native";
-import { GestureHandlerRootView, TouchableOpacity } from "react-native-gesture-handler";
+import {
+  GestureHandlerRootView,
+  TouchableOpacity,
+} from "react-native-gesture-handler";
 import { COLORS, textColor } from "../../styles/theme";
 import { supabase } from "../../supabaseClient";
-
 
 export default function Camera() {
   const api_key = process.env.EXPO_PUBLIC_ROBOFLOW_API_KEY;
@@ -37,8 +38,8 @@ export default function Camera() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [detectedLabel, setDetectedLabel] = useState<string | null>(null);
-const [valuationLoading, setValuationLoading] = useState<boolean>(false);
-const [showValuationModal, setShowValuationModal] = useState(false);
+  const [valuationLoading, setValuationLoading] = useState<boolean>(false);
+  const [showValuationModal, setShowValuationModal] = useState(false);
 
   interface BoundingBox {
     x: number;
@@ -57,8 +58,8 @@ const [showValuationModal, setShowValuationModal] = useState(false);
     predictions: Prediction[];
   }
 
-  // Add a new state to store just the detected class names
-  const [inferenceResults, setInferenceResults] = useState<InferenceResult | null>(null);
+  const [inferenceResults, setInferenceResults] =
+    useState<InferenceResult | null>(null);
   const [detectedClass, setDetectedClass] = useState<string | null>(null);
   const slideAnim = useRef(new Animated.Value(0)).current;
 
@@ -91,62 +92,59 @@ const [showValuationModal, setShowValuationModal] = useState(false);
     );
   }
 
-
-  const startScan = async (imageUri: string): Promise<{ scanId: string; imageUrl: string } | null> => {
+  const startScan = async (
+    imageUri: string
+  ): Promise<{ scanId: string; imageUrl: string } | null> => {
     const {
       data: { user },
-      error: userError
+      error: userError,
     } = await supabase.auth.getUser();
-  
+
     if (!user) {
       console.warn("No user found");
       return null;
     }
-  
-    // Upload image to storage
+
     const filename = `${user.id}-${Date.now()}.jpg`;
-    const { data: uploadData, error: uploadError } = await supabase
-      .storage
+    const { data: uploadData, error: uploadError } = await supabase.storage
       .from("scans")
       .upload(filename, {
         uri: imageUri,
         type: "image/jpeg",
         name: filename,
       } as any);
-  
+
     if (uploadError) {
       console.error("Image upload failed:", uploadError);
       return null;
     }
-  
-    const imageUrl = supabase
-      .storage
-      .from("scans")
-      .getPublicUrl(filename).data.publicUrl;
-  
-    // Insert new scan row
+
+    const imageUrl = supabase.storage.from("scans").getPublicUrl(filename)
+      .data.publicUrl;
+
     const { data, error } = await supabase
       .from("rewind_scans")
-      .insert([{
-        user_id: user.id,
-        image_filename: filename,
-        image_url: imageUrl,
-        captured_at: new Date().toISOString()
-      }])
+      .insert([
+        {
+          user_id: user.id,
+          image_filename: filename,
+          image_url: imageUrl,
+          captured_at: new Date().toISOString(),
+        },
+      ])
       .select("scan_id")
       .single();
-  
+
     if (error) {
       console.error("Failed to insert scan row:", error);
       return null;
     }
-  
+
     return { scanId: data.scan_id, imageUrl };
   };
-  
+
   const runRoboflowAndUpdateScan = async (scanId: string, imageUri: string) => {
     try {
-      // Convert image to base64
       const response = await fetch(imageUri);
       const blob = await response.blob();
       const base64 = await new Promise<string>((resolve, reject) => {
@@ -156,130 +154,74 @@ const [showValuationModal, setShowValuationModal] = useState(false);
         reader.readAsDataURL(blob);
       });
       const base64Image = base64.split(",")[1];
-     
-  
-  
-      // Roboflow request
-      const result = await fetch("https://detect.roboflow.com/infer/workflows/sultup/detect-and-classify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          api_key: api_key,
-          inputs: { image: { type: "url", value: base64Image } }
-        })
-      }).then(res => res.json());
-  
-      const detectedItem = result?.outputs?.[0]?.model_predictions?.predictions?.[0]?.class || "Unknown";
 
+      const result = await fetch(
+        "https://detect.roboflow.com/infer/workflows/sultup/detect-and-classify",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            api_key: api_key,
+            inputs: { image: { type: "url", value: base64Image } },
+          }),
+        }
+      ).then((res) => res.json());
 
+      const detectedItem =
+        result?.outputs?.[0]?.model_predictions?.predictions?.[0]?.class ||
+        "Unknown";
 
       console.log("Roboflow result:", JSON.stringify(result, null, 2));
 
-    
+      setDetectedLabel(detectedItem);
+      setValuationLoading(true);
+      setShowValuationModal(true);
 
-    // Show detection modal
-    setDetectedLabel(detectedItem);
-    setValuationLoading(true);
-    setShowValuationModal(true);
+      await supabase
+        .from("rewind_scans")
+        .update({ roboflow_results: result })
+        .eq("scan_id", scanId);
 
-    // Save results to scans table
-    await supabase
-      .from("rewind_scans")
-      .update({ roboflow_results: result })
-      .eq("scan_id", scanId);
+      const { data: scanRow, error: scanError } = await supabase
+        .from("rewind_scans")
+        .select("image_url")
+        .eq("scan_id", scanId)
+        .single();
 
+      if (scanError || !scanRow?.image_url) {
+        console.error(
+          "Failed to fetch image URL from rewind_scans:",
+          scanError
+        );
+        return;
+      }
 
-// 🔥 NEW: Fetch metadata to display in modal
-// Fetch imageUrl from rewind_scans by scanId
-const { data: scanRow, error: scanError } = await supabase
-  .from("rewind_scans")
-  .select("image_url")
-  .eq("scan_id", scanId)
-  .single();
+      await fetchMetadata(detectedItem, scanRow.image_url);
 
-if (scanError || !scanRow?.image_url) {
-  console.error("Failed to fetch image URL from rewind_scans:", scanError);
-  return;
-}
-
-await fetchMetadata(detectedItem, scanRow.image_url);
-
-
-
-
-
-    // 👇 simulate price model / valuation
-    setTimeout(() => {
-      setValuationLoading(false); // hide loading spinner
-      // optionally show metadata/valuation UI
-    }, 2500);
-
-  } catch (err) {
-    console.error("Roboflow error:", err);
-  }
-};
-  
-  
-      // // Call Roboflow Hosted Workflow API
-      // const apiResponse = await fetch(
-      //   'https://detect.roboflow.com/infer/workflows/sultup/detect-and-classify',
-      //   {
-      //     method: 'POST',
-      //     headers: {
-      //       'Content-Type': 'application/json'
-      //     },
-      //     body: JSON.stringify({
-      //       api_key: ROBOFLOW_API_KEY,
-      //       inputs: {
-      //         image: {
-      //           type: 'base64',
-      //           value: base64Image
-      //         }
-      //       }
-      //     })
-      //   }
-      // )
-  
-      // if (!apiResponse.ok) {
-      //   throw new Error("Failed to process image");
-      // }
-  
-      // const result = await apiResponse.json();
-      // setInferenceResults(result);
-
-
-      // // Extract detected class
-      // console.log("API Response:", JSON.stringify(result, null, 2));
-  
-      // if (
-      //   result &&
-      //   result.outputs &&
-      //   result.outputs[0]?.predictions?.predictions &&
-      //   result.outputs[0].predictions.predictions.length > 0
-      // ) {
-      //   const detectedItem = result.outputs[0].predictions.predictions[0].class;
-      //   setDetectedClass(detectedItem);
-
-      
-
+      setTimeout(() => {
+        setValuationLoading(false);
+      }, 2500);
+    } catch (err) {
+      console.error("Roboflow error:", err);
+    }
+  };
 
   const takePicture = async () => {
     const photo = await ref.current?.takePictureAsync();
     if (photo?.uri) {
-      setUri(photo.uri); // For preview display
-  
-      setLoading(true); // optional loading indicator
-  
+      setUri(photo.uri);
+
+      setLoading(true);
+
       const scan = await startScan(photo.uri);
       if (scan) {
         await runRoboflowAndUpdateScan(scan.scanId, photo.uri);
-        // later: call OpenAI or price model here
       }
-  
+
       setLoading(false);
     }
   };
-  
+
   const recordVideo = async () => {
     if (recording) {
       setRecording(false);
@@ -311,29 +253,39 @@ await fetchMetadata(detectedItem, scanRow.image_url);
         image_url: imageUrl,
       },
     ]);
-  
+
     if (error) {
       console.error("Failed to save detection:", error);
     } else {
       console.log("Detection saved:", data);
     }
   };
-  
 
   const DetailItem = ({ label, value }: { label: string; value?: string }) => (
     <View style={{ marginBottom: 10 }}>
-      <Text style={{ color: textColor.secondary, fontWeight: "bold", fontSize: 14 }}>
+      <Text
+        style={{ color: textColor.secondary, fontWeight: "bold", fontSize: 14 }}
+      >
         {label}:
       </Text>
-      <Text style={{ color: textColor.primary, fontSize: 16 }}>{value || "N/A"}</Text>
+      <Text style={{ color: textColor.primary, fontSize: 16 }}>
+        {value || "N/A"}
+      </Text>
     </View>
   );
-  
+
   const renderResults = () => {
     return (
       <Modal visible={!!metadata} transparent animationType="slide">
         <GestureHandlerRootView style={{ flex: 1 }}>
-          <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.85)", justifyContent: "center", alignItems: "center" }}>
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: "rgba(0,0,0,0.85)",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
             {metadata && (
               <View
                 style={{
@@ -361,7 +313,7 @@ await fetchMetadata(detectedItem, scanRow.image_url);
                   }}
                 >
                   <Image
-                    source={{ uri: uri || '' }}
+                    source={{ uri: uri || "" }}
                     style={{
                       width: "100%",
                       height: "100%",
@@ -369,7 +321,7 @@ await fetchMetadata(detectedItem, scanRow.image_url);
                     }}
                   />
                 </View>
-  
+
                 {/* Title */}
                 <Text
                   style={{
@@ -382,7 +334,7 @@ await fetchMetadata(detectedItem, scanRow.image_url);
                 >
                   {metadata.title || "Untitled Item"}
                 </Text>
-  
+
                 {/* Price as a clickable button */}
                 <TouchableOpacity
                   style={{
@@ -393,30 +345,63 @@ await fetchMetadata(detectedItem, scanRow.image_url);
                     marginBottom: 20,
                   }}
                   onPress={() => {
-                    router.push({ pathname: "/screens/source", params: { itemId: metadata.item_id } });
-
+                    router.push({
+                      pathname: "/screens/source",
+                      params: { itemId: metadata.item_id },
+                    });
 
                     console.log("Navigate to price sources");
                   }}
                 >
-                  <Text style={{ fontSize: 20, fontWeight: "bold", color: "white" }}>
-  ${metadata.rewind_price ? Number(metadata.rewind_price).toLocaleString() : "N/A"}
-</Text>
-
+                  <Text
+                    style={{ fontSize: 20, fontWeight: "bold", color: "white" }}
+                  >
+                    $
+                    {metadata.rewind_price
+                      ? Number(metadata.rewind_price).toLocaleString()
+                      : "N/A"}
+                  </Text>
                 </TouchableOpacity>
-  
+
                 {/* Material and Era */}
-                <View style={{ flexDirection: "row", width: "100%", justifyContent: "space-between", marginBottom: 30 }}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    width: "100%",
+                    justifyContent: "space-between",
+                    marginBottom: 30,
+                  }}
+                >
                   <View>
-                    <Text style={{ fontSize: 14, fontWeight: "bold", color: textColor.secondary }}>Material</Text>
-                    <Text style={{ fontSize: 16, color: textColor.primary }}>{metadata.materials?.[0] || "N/A"}</Text>
+                    <Text
+                      style={{
+                        fontSize: 14,
+                        fontWeight: "bold",
+                        color: textColor.secondary,
+                      }}
+                    >
+                      Material
+                    </Text>
+                    <Text style={{ fontSize: 16, color: textColor.primary }}>
+                      {metadata.materials?.[0] || "N/A"}
+                    </Text>
                   </View>
                   <View>
-                    <Text style={{ fontSize: 14, fontWeight: "bold", color: textColor.secondary }}>Era</Text>
-                    <Text style={{ fontSize: 16, color: textColor.primary }}>{metadata.period || "Unknown"}</Text>
+                    <Text
+                      style={{
+                        fontSize: 14,
+                        fontWeight: "bold",
+                        color: textColor.secondary,
+                      }}
+                    >
+                      Era
+                    </Text>
+                    <Text style={{ fontSize: 16, color: textColor.primary }}>
+                      {metadata.period || "Unknown"}
+                    </Text>
                   </View>
                 </View>
-  
+
                 {/* Confirm Button */}
                 <TouchableOpacity
                   onPress={() => setMetadata(null)}
@@ -428,7 +413,11 @@ await fetchMetadata(detectedItem, scanRow.image_url);
                     alignItems: "center",
                   }}
                 >
-                  <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }}>Confirm</Text>
+                  <Text
+                    style={{ color: "white", fontWeight: "bold", fontSize: 16 }}
+                  >
+                    Confirm
+                  </Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -437,11 +426,10 @@ await fetchMetadata(detectedItem, scanRow.image_url);
       </Modal>
     );
   };
-  
-  
+
   const renderPicture = () => {
     if (!uri) return null;
-  
+
     return (
       <View style={styles.previewContainer}>
         <Image source={{ uri }} style={styles.preview} />
@@ -469,7 +457,6 @@ await fetchMetadata(detectedItem, scanRow.image_url);
       </View>
     );
   };
-  
 
   const renderCamera = () => {
     return (
@@ -483,11 +470,11 @@ await fetchMetadata(detectedItem, scanRow.image_url);
       >
         {/* 🔙 Home button in top-left corner */}
         <View style={styles.navBar}>
-          <TouchableOpacity onPress={() => router.push("/")}>
+          <TouchableOpacity onPress={() => router.push("/app")}>
             <AntDesign name="arrowleft" size={28} color="white" />
           </TouchableOpacity>
         </View>
-  
+
         {/* Camera controls */}
         <View style={styles.shutterContainer}>
           <Pressable onPress={toggleMode}>
@@ -511,7 +498,8 @@ await fetchMetadata(detectedItem, scanRow.image_url);
                   style={[
                     styles.shutterBtnInner,
                     {
-                      backgroundColor: mode === "picture" ? "charcoalBrown" : "red",
+                      backgroundColor:
+                        mode === "picture" ? "charcoalBrown" : "red",
                     },
                   ]}
                 />
@@ -525,43 +513,46 @@ await fetchMetadata(detectedItem, scanRow.image_url);
       </CameraView>
     );
   };
-  
-  
-         
+
   const fetchMetadata = async (itemName: string, imageUrl: string) => {
     if (!itemName) return;
-  
+
     try {
       const { data, error } = await supabase
         .from("rewind_core_items_v2")
-        .select(`
+        .select(
+          `
           name, item_id, materials, period,
           rewind_price, style, culture, designer,
           manufacturer, model_number, country_of_origin,
           provenance_date, condition, dimensions, location,
           source_url, origin_notes, condition_notes,
           originality, provenance_notes, pricing_notes, owner_notes
-        `)
+        `
+        )
         .ilike("name", `%${itemName}%`)
         .limit(1)
         .single();
-  
+
       if (error || !data) {
         console.warn("No metadata found for:", itemName);
         return;
       }
-  
-      const filteredMetadata = Object.entries(data).reduce((acc, [key, value]) => {
-        if (value !== null && value !== undefined && value !== "") {
-          acc[key] = value;
-        }
-        return acc;
-      }, {} as Record<string, any>);
-  
+
+      const filteredMetadata = Object.entries(data).reduce(
+        (acc, [key, value]) => {
+          if (value !== null && value !== undefined && value !== "") {
+            acc[key] = value;
+          }
+          return acc;
+        },
+        {} as Record<string, any>
+      );
+
       router.push({
         pathname: "/screens/results",
         params: {
-          imageUri: imageUrl, // ✅ public URL from rewind_scans
+          imageUri: imageUrl,
           itemId: filteredMetadata.item_id,
           itemName: filteredMetadata.name,
           material: filteredMetadata.materials?.[0],
@@ -591,20 +582,14 @@ await fetchMetadata(detectedItem, scanRow.image_url);
       console.error("Error fetching metadata:", err);
     }
   };
-  
-  
-    
 
   return (
- 
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <View style={styles.container}>
-          {uri ? renderPicture() : renderCamera()}
-        </View>
-      </GestureHandlerRootView>
-    );
-    
-
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <View style={styles.container}>
+        {uri ? renderPicture() : renderCamera()}
+      </View>
+    </GestureHandlerRootView>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -718,5 +703,4 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 30,
   },
-  
 });
