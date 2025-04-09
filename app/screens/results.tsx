@@ -1,13 +1,12 @@
 // app/ScanResult.tsx
-import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { COLORS, textColor } from "../../styles/theme";
 
@@ -56,20 +55,21 @@ export default function ScanResult() {
   return (
     <View style={styles.container}>
       {/* Top Navigation Bar */}
-      <View style={styles.navBar}>
+      {/* <View style={styles.navBar}>
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color={textColor.primary} />
         </TouchableOpacity>
-      </View>
+      </View> */}
 
-      <ScrollView contentContainerStyle={styles.contentContainer}>
-        {/* Image */}
-        <View style={styles.imageContainer}>
-          <Image source={{ uri: imageUri as string }} style={styles.image} />
-        </View>
+      
+<ScrollView contentContainerStyle={styles.contentContainer}>
+  {/* Image */}
+  <View style={styles.imageContainer}>
+    <Image source={{ uri: imageUri as string }} style={styles.image} />
+  </View>
 
-        {/* Title */}
-        <Text style={styles.title} numberOfLines={2}>
+   {/* Title */}
+   <Text style={styles.title} numberOfLines={2}>
           {itemName || "Untitled Item"}
         </Text>
 
@@ -89,57 +89,77 @@ export default function ScanResult() {
           </Text>
         </TouchableOpacity>
 
-        {/* Material & Era */}
-        <View style={styles.detailsRow}>
-          <View>
-            <Text style={styles.label}>Material</Text>
-            <Text style={styles.value}>{material || "N/A"}</Text>
-          </View>
-          <View>
-            <Text style={styles.label}>Era</Text>
-            <Text style={styles.value}>{era || "Unknown"}</Text>
-          </View>
-        </View>
 
-        {/* Extended Metadata */}
-        <View style={{ width: "100%" }}>
-          <Text style={styles.sectionHeader}>Item Details</Text>
-          <DetailItem label="Style" value={style as string} />
-          <DetailItem label="Culture" value={culture as string} />
-          <DetailItem label="Designer" value={designer as string} />
-          <DetailItem label="Manufacturer" value={manufacturer as string} />
-          <DetailItem label="Model Number" value={model_number as string} />
-          <DetailItem label="Country of Origin" value={country_of_origin as string} />
-          <DetailItem label="Provenance Date" value={provenance_date as string} />
-          <DetailItem label="Condition" value={condition as string} />
-          <DetailItem label="Dimensions" value={dimensions as string} />
-          <DetailItem label="Materials" value={Array.isArray(materials) ? materials.join(", ") : (materials as string)} />
+  {/* Section: Features */}
+  <Text style={styles.sectionHeader}>Features</Text>
+  <View style={styles.sectionBox}>
+    <DetailItem label="Condition" value={condition as string} />
+    <Text style={styles.label}>Condition Notes</Text>
+    <Text style={styles.value}>{condition_notes}</Text>
+    <View style={styles.dimensionRow}>
+      <DetailItem
+        label="Height"
+        value={
+          typeof dimensions === "string"
+            ? dimensions.split(",")[0]
+            : dimensions?.[0]
+        }
+      />
+      <DetailItem
+        label="Width"
+        value={
+          typeof dimensions === "string"
+            ? dimensions.split(",")[1]
+            : dimensions?.[1]
+        }
+      />
+      <DetailItem
+        label="Depth"
+        value={
+          Array.isArray(dimensions)
+            ? dimensions[2]
+            : dimensions?.split(",")[2]
+        }
+      />
+    </View>
+  </View>
 
-          <Text style={styles.sectionHeader}>Location & Source</Text>
-          <DetailItem label="Location" value={location as string} />
-          <DetailItem label="Source URL" value={source_url as string} />
 
-          <Text style={styles.sectionHeader}>Notes</Text>
-          <DetailItem label="Origin Notes" value={origin_notes as string} />
-          <DetailItem label="Condition Notes" value={condition_notes as string} />
-          <DetailItem label="Originality" value={originality as string} />
-          <DetailItem label="Provenance Notes" value={provenance_notes as string} />
-          <DetailItem label="Pricing Notes" value={pricing_notes as string} />
-          <DetailItem label="Owner Notes" value={owner_notes as string} />
-        </View>
+  {/* Section: Designer */}
+  {(designer || manufacturer) && (
+    <>
+    
+      <View style={styles.sectionBox}>
+        {designer && <DetailItem label="Designer" value={designer as string} />}
+        {manufacturer && <DetailItem label="Manufacturer" value={manufacturer as string} />}
+      </View>
+    </>
+  )}
 
-        {/* Confirm Button */}
-        <TouchableOpacity style={styles.confirmBtn} onPress={() => router.back()}>
-          <Text style={styles.confirmText}>Confirm</Text>
-        </TouchableOpacity>
-      </ScrollView>
+  {/* Section: Materials & Era */}
+
+  <View style={styles.sectionBox}>
+    <DetailItem label="Materials" value={Array.isArray(materials) ? materials.join(", ") : (materials as string)} />
+    <DetailItem label="Era" value={era as string} />
+    <DetailItem label="Date" value={provenance_date as string} />
+  </View>
+
+
+
+  {/* Confirm Button */}
+  <TouchableOpacity style={styles.confirmBtn} onPress={() => router.back()}>
+    <Text style={styles.confirmText}>Confirm</Text>
+  </TouchableOpacity>
+</ScrollView>
+
+
     </View>
   );
 }
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: COLORS.softIvory,
+      backgroundColor: COLORS.primaryBackground,
     },
     navBar: {
       paddingTop: 60,
@@ -150,26 +170,27 @@ const styles = StyleSheet.create({
     },
     contentContainer: {
       paddingBottom: 40,
-      paddingHorizontal: 25,
+      paddingHorizontal: 10,
+ 
     },
     imageContainer: {
-      width: 180,
-      height: 250,
-      marginBottom: 25,
+      width: "100%",
+      height: 275,
+      // aspectRatio: 1,
+      marginBottom: 10,
+      marginTop: 10,
       alignSelf: "center",
-      borderRadius: 10,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.3,
-      shadowRadius: 5,
+      borderRadius: 6,
       elevation: 10,
       overflow: "hidden",
     },
+    
     image: {
       width: "100%",
-      height: "100%",
-      resizeMode: "contain",
+      height: "100%", // <== Fill the container
+      resizeMode: "cover",
     },
+    
     title: {
       fontSize: 22,
       fontWeight: "600",
@@ -178,7 +199,7 @@ const styles = StyleSheet.create({
       marginBottom: 10,
     },
     priceButton: {
-      backgroundColor: "#001F2D",
+      backgroundColor: COLORS.lightLime,
       paddingVertical: 10,
       borderRadius: 12,
       marginBottom: 20,
@@ -188,7 +209,7 @@ const styles = StyleSheet.create({
     priceText: {
       fontSize: 20,
       fontWeight: "bold",
-      color: "white",
+      color: textColor.primary,
     },
     detailsRow: {
       flexDirection: "row",
@@ -208,7 +229,7 @@ const styles = StyleSheet.create({
       fontSize: 18,
       fontWeight: "600",
       color: textColor.primary,
-      marginTop: 20,
+      marginTop: 2,
       marginBottom: 10,
     },
     confirmBtn: {
@@ -217,12 +238,29 @@ const styles = StyleSheet.create({
       borderRadius: 10,
       width: "100%",
       alignItems: "center",
-      marginTop: 30,
+      marginTop: 10,
     },
     confirmText: {
       color: "white",
       fontWeight: "bold",
       fontSize: 16,
     },
+    sectionBox: {
+      backgroundColor: COLORS.primaryBackground,
+      padding: 15,
+      borderRadius: 10,
+      marginBottom: 20,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    dimensionRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      marginTop: 10,
+    },
+    
   });
   
