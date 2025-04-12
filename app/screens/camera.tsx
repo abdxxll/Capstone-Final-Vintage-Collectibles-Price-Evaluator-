@@ -92,6 +92,58 @@ export default function Camera() {
     );
   }
 
+  const parseGeminiResponseToJson = (text: string) => {
+    try {
+      const clean = (str: string) =>
+        str.replace(/\*\*/g, "").replace(/\*/g, "").replace(/\\n/g, " ").trim();
+  
+      const sections = {
+        estimated_price_range: "",
+        key_factors: [] as string[],
+        reasoning: [] as string[],
+        confidence_level: "",
+      };
+  
+      const lines = text.split("\n").map((l) => l.trim());
+  
+      let currentSection = "";
+  
+      for (let line of lines) {
+        if (line.startsWith("**1. Estimated Price Range:**")) {
+          currentSection = "price";
+          sections.estimated_price_range = clean(line.split(":")[1] || "");
+        } else if (line.startsWith("**2. Key Factors Considered:**")) {
+          currentSection = "factors";
+        } else if (line.startsWith("**3. Reasoning for Estimate:**")) {
+          currentSection = "reasoning";
+        } else if (line.startsWith("**4. Confidence Level:**")) {
+          currentSection = "confidence";
+        } else {
+          if (currentSection === "factors" && line.startsWith("*")) {
+            sections.key_factors.push(clean(line));
+          } else if (currentSection === "reasoning" && line.startsWith("*")) {
+            sections.reasoning.push(clean(line));
+          } else if (currentSection === "confidence" && line.length > 0) {
+            sections.confidence_level = clean(line);
+          }
+        }
+      }
+  
+      return sections;
+    } catch (err) {
+      console.error("❌ Failed to parse Gemini output:", err);
+      return {
+        estimated_price_range: null,
+        key_factors: [],
+        reasoning: [],
+        confidence_level: null,
+        raw_text: text,
+      };
+    }
+  };
+  
+  
+
   const startScan = async (
     imageUri: string
   ): Promise<{ scanId: string; imageUrl: string } | null> => {
@@ -142,6 +194,69 @@ export default function Camera() {
 
     return { scanId: data.scan_id, imageUrl };
   };
+
+  const callGeminiWithMetadata = async (metadataList: any[]) => {
+    const GEMINI_API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
+    const GEMINI_API_URL =
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+  
+    const formatEntry = (entry: any, i: number) => {
+      const meta = entry.metadata || {};
+      const basic = meta.basic_info || {};
+      const pricing = meta.pricing || {};
+      const source = meta.source?.url || "Unknown";
+      const provenance = meta.provenance || {};
+      const physical = meta.physical_attributes || {};
+  
+      return `
+  Entry ${i + 1}:
+  Source: ${entry.source_name} (${source})
+  Name: ${basic.name}
+  Description: ${basic.description || "No description"}
+  Price: $${pricing.price ?? "N/A"}, Discounted: $${pricing.discount_price ?? "N/A"}
+  Condition: ${physical.condition || "Unknown"}
+  Dimensions: ${physical.dimensions || "N/A"}
+  Culture: ${provenance.culture || "Unknown"}
+  Country of Origin: ${provenance.country_of_origin || "Unknown"}
+      `.trim();
+    };
+  
+    const metadataText = metadataList.map(formatEntry).join("\n\n");
+  
+    const prompt = `
+  You are an expert appraiser. Analyze the following entries of similar antique or vintage items and estimate a price for the target item.
+  
+  Use these examples as references. Include reasoning and cite similarities in name, condition, dimensions, and culture where possible.
+  
+  Entries:
+  ${metadataText}
+  
+  Please provide:
+  1. An estimated price range
+  2. Key factors you considered
+  3. Reasoning for your estimate
+  4. Confidence level
+    `.trim();
+  
+    const body = {
+      contents: [{ parts: [{ text: prompt }] }],
+    };
+  
+    try {
+      const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+  
+      const result = await response.json();
+      return result?.candidates?.[0]?.content?.parts?.[0]?.text || "No Gemini output.";
+    } catch (err) {
+      console.error("Gemini API error:", err);
+      return "Error fetching Gemini estimation.";
+    }
+  };
+  
 
   const runRoboflowAndUpdateScan = async (scanId: string, imageUri: string) => {
     try {
@@ -196,7 +311,11 @@ export default function Camera() {
         return;
       }
 
-      await fetchMetadata(detectedItem, scanRow.image_url);
+      await fetchMetadata(detectedItem, scanRow.image_url, scanId);
+      
+
+      
+    
 
       setTimeout(() => {
         setValuationLoading(false);
@@ -507,17 +626,24 @@ export default function Camera() {
             )}
           </Pressable>
           <Pressable onPress={toggleFacing}>
-            <FontAwesome6 name="rotate-left" size={32} color="neutral900Brown" />
+            <FontAwesome6
+              name="rotate-left"
+              size={32}
+              color="neutral900Brown"
+            />
           </Pressable>
         </View>
       </CameraView>
     );
   };
 
-  const fetchMetadata = async (itemName: string, imageUrl: string) => {
+  const fetchMetadata = async (itemName: string, imageUrl: string, scanId: string) => {
     if (!itemName) return;
 
+
+
     try {
+      console.log("🔍 Fetching core metadata...");
       const { data, error } = await supabase
         .from("rewind_core_items_v2")
         .select(
@@ -539,6 +665,11 @@ export default function Camera() {
         return;
       }
 
+    
+
+      // Fetch metadata sources
+      console.log("📦 Fetching metadata sources...");
+
       const filteredMetadata = Object.entries(data).reduce(
         (acc, [key, value]) => {
           if (value !== null && value !== undefined && value !== "") {
@@ -549,39 +680,75 @@ export default function Camera() {
         {} as Record<string, any>
       );
 
-      router.push({
-        pathname: "../results",
-        params: {
-          imageUri: imageUrl,
-          itemId: filteredMetadata.item_id,
-          itemName: filteredMetadata.name,
-          material: filteredMetadata.materials?.[0],
-          era: filteredMetadata.period,
-          rewindPrice: filteredMetadata.rewind_price,
-          style: filteredMetadata.style,
-          culture: filteredMetadata.culture,
-          designer: filteredMetadata.designer,
-          manufacturer: filteredMetadata.manufacturer,
-          model_number: filteredMetadata.model_number,
-          country_of_origin: filteredMetadata.country_of_origin,
-          provenance_date: filteredMetadata.provenance_date,
-          condition: filteredMetadata.condition,
-          dimensions: filteredMetadata.dimensions,
-          location: filteredMetadata.location,
-          source_url: filteredMetadata.source_url,
-          origin_notes: filteredMetadata.origin_notes,
-          condition_notes: filteredMetadata.condition_notes,
-          originality: filteredMetadata.originality,
-          provenance_notes: filteredMetadata.provenance_notes,
-          pricing_notes: filteredMetadata.pricing_notes,
-          owner_notes: filteredMetadata.owner_notes,
-          materials: JSON.stringify(filteredMetadata.materials || []),
-        },
-      });
-    } catch (err) {
-      console.error("Error fetching metadata:", err);
-    }
-  };
+      console.log("✅ Core metadata:", filteredMetadata);
+
+      // Fetch metadata sources
+      console.log("📦 Fetching metadata sources...");
+
+      // 1. Get metadata from rewind_item_metadata
+      const { data: sourcesData, error: metadataError } = await supabase
+        .from("rewind_item_metadata")
+        .select("id, metadata, source_name")
+        .eq("item_id", filteredMetadata.item_id)
+        .order("created_at", { ascending: false });
+
+    
+        if (metadataError || !sourcesData) {
+          console.warn("⚠️ Metadata sources fetch failed:", metadataError);
+        }
+    
+        console.log("🧠 Calling Gemini...");
+        console.log("🧠 Metadata sources:", sourcesData);
+        const geminiResult = await callGeminiWithMetadata(sourcesData || []);
+        console.log("📩 Gemini result:", geminiResult);
+        const parsedGeminiResult = parseGeminiResponseToJson(geminiResult);
+        console.log("📩 Parsed Gemini result:", parsedGeminiResult);
+    
+        console.log("🗃️ Saving Gemini result to Supabase...");
+        const { error: updateError } = await supabase
+          .from("rewind_scans")
+          .update({ price_model_results: parsedGeminiResult })
+          .eq("scan_id", scanId);
+    
+        if (updateError) {
+          console.error("❌ Failed to save Gemini result:", updateError);
+        }
+    
+        console.log("🚀 Routing to results...");
+        router.push({
+          pathname: "/screens/results",
+          params: {
+            scanId: scanId,
+            imageUri: imageUrl,
+            itemId: filteredMetadata.item_id,
+            itemName: filteredMetadata.name,
+            material: filteredMetadata.materials?.[0],
+            era: filteredMetadata.period,
+            rewindPrice: filteredMetadata.rewind_price,
+            style: filteredMetadata.style,
+            culture: filteredMetadata.culture,
+            designer: filteredMetadata.designer,
+            manufacturer: filteredMetadata.manufacturer,
+            model_number: filteredMetadata.model_number,
+            country_of_origin: filteredMetadata.country_of_origin,
+            provenance_date: filteredMetadata.provenance_date,
+            condition: filteredMetadata.condition,
+            dimensions: filteredMetadata.dimensions,
+            location: filteredMetadata.location,
+            source_url: filteredMetadata.source_url,
+            origin_notes: filteredMetadata.origin_notes,
+            condition_notes: filteredMetadata.condition_notes,
+            originality: filteredMetadata.originality,
+            provenance_notes: filteredMetadata.provenance_notes,
+            pricing_notes: filteredMetadata.pricing_notes,
+            owner_notes: filteredMetadata.owner_notes,
+            materials: JSON.stringify(filteredMetadata.materials || []),
+          },
+        });
+      } catch (err) {
+        console.error("💥 Unexpected error in fetchMetadata:", err);
+      }
+    };
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
