@@ -470,7 +470,7 @@ export default function Camera() {
       >
         {/* 🔙 Home button in top-left corner */}
         <View style={styles.navBar}>
-          <TouchableOpacity onPress={() => router.push("../index")}>
+          <TouchableOpacity onPress={() => router.push("/screens/home")}>
             <AntDesign name="arrowleft" size={28} color="white" />
           </TouchableOpacity>
         </View>
@@ -479,9 +479,9 @@ export default function Camera() {
         <View style={styles.shutterContainer}>
           <Pressable onPress={toggleMode}>
             {mode === "picture" ? (
-              <AntDesign name="picture" size={32} color="charcoalBrown" />
+              <AntDesign name="picture" size={32} color="neutral900Brown" />
             ) : (
-              <Feather name="video" size={32} color="charcoalBrown" />
+              <Feather name="video" size={32} color="neutral900Brown" />
             )}
           </Pressable>
           <Pressable onPress={mode === "picture" ? takePicture : recordVideo}>
@@ -499,7 +499,7 @@ export default function Camera() {
                     styles.shutterBtnInner,
                     {
                       backgroundColor:
-                        mode === "picture" ? "charcoalBrown" : "red",
+                        mode === "picture" ? "neutral900Brown" : "red",
                     },
                   ]}
                 />
@@ -507,7 +507,7 @@ export default function Camera() {
             )}
           </Pressable>
           <Pressable onPress={toggleFacing}>
-            <FontAwesome6 name="rotate-left" size={32} color="charcoalBrown" />
+            <FontAwesome6 name="rotate-left" size={32} color="neutral900Brown" />
           </Pressable>
         </View>
       </CameraView>
@@ -614,7 +614,7 @@ const styles = StyleSheet.create({
   shutterBtn: {
     backgroundColor: "transparent",
     borderWidth: 5,
-    borderColor: "charcoalBrown",
+    borderColor: "neutral900Brown",
     width: 85,
     height: 85,
     borderRadius: 45,
