@@ -5,8 +5,12 @@ export default function Index() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace("/screens/home"); 
+    const timer = setTimeout(() => {
+      router.replace("/screens/home");
+    }, 50); // delay is enough to ensure layout is mounted
+
+    return () => clearTimeout(timer);
   }, []);
 
-  return null; 
+  return null;
 }

@@ -24,15 +24,21 @@ export default function RootLayout() {
     };
   }, []);
 
-  useEffect(() => {
-    if (!loading) {
-      if (session) {
-        router.replace("/screens/home");
-      } else {
-        router.replace("/auth/login");
-      }
-    }
-  }, [loading, session]);
+  // useEffect(() => {
+  //   if (!loading) {
+  //     const timer = setTimeout(() => {
+  //       if (session) {
+  //         router.replace("/screens/home");
+  //       } else {
+  //         router.replace("/auth/login");
+  //       }
+  //     }, 100); // Delay lets Slot/render tree mount safely
+  
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [loading, session]);
+  
+    
 
   if (loading) {
     return (
