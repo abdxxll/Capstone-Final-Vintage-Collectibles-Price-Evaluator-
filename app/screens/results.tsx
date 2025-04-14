@@ -3,14 +3,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import {
-  Animated,
-  Dimensions,
-  Platform,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    Animated,
+    Dimensions,
+    Platform,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from "react-native";
 import { COLORS, textColor } from "../../styles/theme";
 
@@ -49,6 +49,7 @@ export default function ScanResult() {
     pricing_notes,
     owner_notes,
     materials,
+    scanId,
   } = useLocalSearchParams();
 
   // Animation values
@@ -86,18 +87,37 @@ export default function ScanResult() {
       : "Price on request";
     
     return (
-      <TouchableOpacity
-        style={styles.priceButton}
-        onPress={() =>
-          router.push({
-            pathname: "/screens/source",
-            params: { itemName }
-          })
-        }
-      >
-        <Text style={styles.priceText}>{price}</Text>
-        <Ionicons name="information-circle-outline" size={18} color={textColor.primary} style={styles.infoIcon} />
-      </TouchableOpacity>
+      <View style={styles.headerButtonsContainer}>
+        <TouchableOpacity
+          style={styles.priceButton}
+          onPress={() =>
+            router.push({
+              pathname: "/screens/source",
+              params: { itemName }
+            })
+          }
+        >
+          <Text style={styles.priceText}>{price}</Text>
+          <Ionicons name="information-circle-outline" size={18} color={textColor.primary} style={styles.infoIcon} />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.aiAnalysisButton}
+          onPress={() =>
+            router.push({
+              pathname: "/screens/ai-analysis",
+              params: { 
+                scanId,
+                itemName,
+                imageUrl: imageUri
+              }
+            })
+          }
+        >
+          <Ionicons name="analytics-outline" size={18} color={textColor.primary} style={styles.infoIcon} />
+          <Text style={styles.aiAnalysisText}>AI Analysis</Text>
+        </TouchableOpacity>
+      </View>
     );
   };
 
@@ -418,28 +438,40 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingHorizontal: 20,
   },
-  priceButton: {
-    backgroundColor: COLORS.accent1,
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 12,
-    marginBottom: 24,
-    alignSelf: 'center',
+  headerButtonsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    gap: 12,
+  },
+  priceButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  aiAnalysisButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.secondary,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
   },
   priceText: {
-    fontSize: 22,
-    fontWeight: 'bold',
     color: textColor.primary,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  aiAnalysisText: {
+    color: textColor.primary,
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 4,
   },
   infoIcon: {
-    marginLeft: 8,
+    marginLeft: 4,
   },
   tabContainer: {
     flexDirection: 'row',

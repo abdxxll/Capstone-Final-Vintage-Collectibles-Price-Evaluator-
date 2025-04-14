@@ -2,18 +2,18 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Dimensions,
-  FlatList,
-  Image,
-  Platform,
-  RefreshControl,
-  SafeAreaView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Dimensions,
+    FlatList,
+    Image,
+    Platform,
+    RefreshControl,
+    SafeAreaView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from "react-native";
 import { COLORS, textColor } from "../../styles/theme";
 import { supabase } from "../../supabaseClient";
@@ -22,6 +22,12 @@ interface ScanItem {
   scan_id: string;
   image_url: string;
   created_at: string;
+  price_model_results?: {
+    estimated_price_range: string;
+    key_factors: string[];
+    reasoning: string[];
+    confidence_level: string;
+  };
   roboflow_results?: {
     outputs?: {
       [key: string]: any;
@@ -86,7 +92,13 @@ export default function HistoryScreen() {
 
       const { data, error } = await supabase
         .from("rewind_scans")
-        .select("*")
+        .select(`
+          scan_id,
+          image_url,
+          created_at,
+          roboflow_results,
+          price_model_results
+        `)
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
@@ -128,7 +140,7 @@ export default function HistoryScreen() {
     }
   };
 
-  const fetchMetadata = async (itemName: string, imageUrl: string) => {
+  const fetchMetadata = async (itemName: string, imageUrl: string, item: ScanItem) => {
     try {
       const { data, error } = await supabase
         .from("rewind_core_items_v2")
@@ -159,6 +171,7 @@ export default function HistoryScreen() {
       router.push({
         pathname: "/screens/results",
         params: {
+          scanId: item.scan_id,
           imageUri: imageUrl,
           itemId: filteredMetadata.item_id,
           itemName: filteredMetadata.name,
@@ -204,7 +217,7 @@ export default function HistoryScreen() {
 
     return (
       <TouchableOpacity
-        onPress={() => fetchMetadata(detectedClass, item.image_url)}
+        onPress={() => fetchMetadata(detectedClass, item.image_url, item)}
         style={styles.card}
         activeOpacity={0.7}
       >
