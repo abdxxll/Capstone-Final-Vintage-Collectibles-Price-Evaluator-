@@ -14,7 +14,7 @@ A mobile application built with React Native and Expo for personal finance manag
 1. Clone the repository:
 ```bash
 git clone [your-repository-url]
-cd plutus-app
+cd capstone-app
 ```
 
 2. Install dependencies:
