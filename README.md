@@ -1,6 +1,6 @@
 # Capstone App
 
-A mobile application built with React Native and Expo for personal finance management.
+A mobile application built with React Native and Expo.
 
 ## Prerequisites
 
@@ -28,22 +28,6 @@ npm start
 ```
 
 4. Open the Expo Go app on your mobile device and scan the QR code that appears in your terminal.
-
-## Features
-
-- Personal finance tracking
-- Budget management
-- Transaction history
-- Secure authentication
-- Cross-platform support (iOS and Android)
-
-## Tech Stack
-
-- React Native
-- Expo
-- TypeScript
-- Supabase (Backend)
-- NativeWind (Styling)
 
 ## Development
 
