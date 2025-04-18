@@ -30,6 +30,7 @@ const HomeScreen = () => {
   const slideAnim = useRef(new Animated.Value(50)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const rotateAnim = useRef(new Animated.Value(0)).current;
+  const buttonScaleAnim = useRef(new Animated.Value(1)).current;
 
   // For the rotating effect in the background
   const rotateInterpolate = rotateAnim.interpolate({
@@ -78,9 +79,25 @@ const HomeScreen = () => {
     ).start();
   }, []);
 
+  const handlePressIn = () => {
+    Animated.timing(buttonScaleAnim, {
+      toValue: 0.95,
+      duration: 150,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.timing(buttonScaleAnim, {
+      toValue: 1,
+      duration: 150,
+      useNativeDriver: true,
+    }).start();
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={COLORS.primaryBackground} />
+      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
 
       {/* Header */}
       <View style={styles.header}>
@@ -99,14 +116,14 @@ const HomeScreen = () => {
       {/* Main Content Area */}
       <View style={styles.mainContent}>
         {/* Rotating background effect */}
-        <Animated.View 
+        {/* <Animated.View 
           style={[
             styles.rotatingBackground, 
             { transform: [{ rotate: rotateInterpolate }] }
           ]}
         >
           <View style={styles.rotatingBackgroundInner} />
-        </Animated.View>
+        </Animated.View> */}
 
         {/* Scan Button with Text and Animation */}
         <View style={styles.scanButtonContainer}>
@@ -123,40 +140,60 @@ const HomeScreen = () => {
             ]}
           >
             <View style={styles.scanButtonGlow} />
+            <Animated.View style={[
+              styles.scanButtonOuterRing,
+              { transform: [{ scale: pulseAnim }] }
+            ]} />
+            
             <TouchableOpacity
               onPress={() => router.push("/screens/camera")}
+              onPressIn={handlePressIn}
+              onPressOut={handlePressOut}
               activeOpacity={0.8}
               style={styles.scanButton}
             >
-              <AntDesign name="videocamera" size={54} color={COLORS.primary} />
-     
+              <Animated.View style={{ 
+                transform: [{ scale: buttonScaleAnim }],
+                alignItems: 'center' 
+              }}>
+                <AntDesign name="videocamera" size={48} color={COLORS.primary} />
+                <Text style={styles.scanButtonText}>Scan Now</Text>
+              </Animated.View>
             </TouchableOpacity>
           </Animated.View>
           <Text style={styles.scanButtonHint}>Tap to scan an item</Text>
         </View>
 
-        {/* Feature Cards */}
-        {/* <View style={styles.featureCardsContainer}>
+        {/* Quick Actions */}
+        {/* <View style={styles.quickActionsContainer}>
           <TouchableOpacity 
-            style={styles.featureCard}
+            style={styles.quickActionButton}
             onPress={() => router.push("/screens/history")}
           >
-            <View style={styles.featureIconContainer}>
-              <Ionicons name="time-outline" size={24} color={COLORS.primary} />
+            <View style={styles.quickActionIconContainer}>
+              <Ionicons name="time-outline" size={22} color={COLORS.primary} />
             </View>
-            <Text style={styles.featureTitle}>History</Text>
-            <Text style={styles.featureDescription}>View your recently scanned items</Text>
+            <Text style={styles.quickActionText}>History</Text>
           </TouchableOpacity>
-
+          
           <TouchableOpacity 
-            style={styles.featureCard}
+            style={styles.quickActionButton}
             onPress={() => router.push("/screens/discover")}
           >
-            <View style={styles.featureIconContainer}>
-              <Ionicons name="compass-outline" size={24} color={COLORS.primary} />
+            <View style={styles.quickActionIconContainer}>
+              <Ionicons name="compass-outline" size={22} color={COLORS.primary} />
             </View>
-            <Text style={styles.featureTitle}>Discover</Text>
-            <Text style={styles.featureDescription}>Explore trending items</Text>
+            <Text style={styles.quickActionText}>Discover</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.quickActionButton}
+            onPress={() => router.push("/screens/settings")}
+          >
+            <View style={styles.quickActionIconContainer}>
+              <Ionicons name="settings-outline" size={22} color={COLORS.primary} />
+            </View>
+            <Text style={styles.quickActionText}>Settings</Text>
           </TouchableOpacity>
         </View> */}
       </View>
@@ -167,6 +204,7 @@ const HomeScreen = () => {
           onPress={() => router.push({ pathname: "/screens/home" })} 
           style={styles.footerTab}
         >
+          <View style={styles.activeTabIndicator} />
           <Ionicons name="home" size={24} color={textColor.primary} />
           <Text style={styles.footerTabTextActive}>Home</Text>
         </TouchableOpacity>
@@ -195,16 +233,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.primaryBackground,
+    position: 'relative',
   },
   header: {
     paddingHorizontal: 20,
     paddingTop: Platform.OS === 'ios' ? 10 : 20,
-    paddingBottom: 15,
+    paddingBottom: 10,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.05)',
+    backgroundColor: COLORS.primaryBackground,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   logoContainer: {
     flex: 1,
@@ -212,7 +257,7 @@ const styles = StyleSheet.create({
   logoText: {
     fontSize: 24,
     fontWeight: "bold",
-    color: textColor.primary,
+    color: COLORS.primary,
   },
   tagline: {
     fontSize: 12,
@@ -220,13 +265,18 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   profileButton: {
-    backgroundColor: 'rgba(0,0,0,0.05)',
-    padding: 8,
+    backgroundColor: 'rgba(0,0,0,0.04)',
+    padding: 10,
     borderRadius: 20,
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
     justifyContent: 'center',
     alignItems: 'center',
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   userIconContainer: {
     width: 24,
@@ -252,6 +302,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     position: 'relative',
+    backgroundColor: COLORS.primaryBackground,
+    
   },
   rotatingBackground: {
     position: 'absolute',
@@ -260,116 +312,143 @@ const styles = StyleSheet.create({
     borderRadius: width * 0.45,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.02)',
+    backgroundColor: 'rgba(0,0,0,0.01)',
   },
   rotatingBackgroundInner: {
-    width: '85%',
-    height: '85%',
+    width: '90%',
+    height: '90%',
     borderRadius: width * 0.45,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.05)',
+    borderColor: 'rgba(0,0,0,0.03)',
     borderStyle: 'dashed',
   },
   scanButtonContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 30,
   },
   scanButtonAnimatedContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 10,
+    marginBottom: 16,
   },
   scanButtonGlow: {
+    position: 'absolute',
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    backgroundColor: COLORS.primary,
+    opacity: 0.15,
+  },
+  scanButtonOuterRing: {
     position: 'absolute',
     width: 170,
     height: 170,
     borderRadius: 85,
-    backgroundColor: COLORS.primary,
-    opacity: 0.15,
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+    opacity: 0.6,
   },
   scanButton: {
     width: 150,
     height: 150,
     borderRadius: 75,
-    backgroundColor: COLORS.primaryBackground,
+    backgroundColor: 'white',
     justifyContent: "center",
     alignItems: "center",
     elevation: 8,
     shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    borderWidth: 2,
-    borderColor: 'rgba(0,0,0,0.05)',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 15,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.03)',
   },
   scanButtonText: {
-    marginTop: 5,
+    marginTop: 8,
     fontSize: 16,
     fontWeight: '600',
-    color: textColor.primary,
+    color: COLORS.primary,
   },
   scanButtonHint: {
-    marginTop: 8,
+    marginTop: 16,
     fontSize: 14,
     color: textColor.secondary,
-    marginBottom: 30,
+    backgroundColor: 'rgba(255,255,255,0.7)',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    overflow: 'hidden',
   },
-  featureCardsContainer: {
+  quickActionsContainer: {
     flexDirection: 'row',
-    paddingHorizontal: 20,
-    width: '100%',
+    width: '90%',
     justifyContent: 'space-between',
-  },
-  featureCard: {
     backgroundColor: 'white',
     borderRadius: 16,
     padding: 16,
-    width: '48%',
+    elevation: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
+    shadowOpacity: 0.1,
     shadowRadius: 8,
-    elevation: 3,
   },
-  featureIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+  quickActionButton: {
+    alignItems: 'center',
+    width: '30%',
+  },
+  quickActionIconContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     backgroundColor: 'rgba(0,0,0,0.03)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 8,
   },
-  featureTitle: {
-    fontSize: 16,
-    fontWeight: '600',
+  quickActionText: {
+    fontSize: 13,
     color: textColor.primary,
-    marginBottom: 6,
-  },
-  featureDescription: {
-    fontSize: 12,
-    color: textColor.secondary,
+    fontWeight: '500',
   },
   footer: {
     flexDirection: "row",
     justifyContent: "space-around",
-    paddingVertical: 12,
+    paddingVertical: 25,
     borderTopWidth: 1,
     borderTopColor: 'rgba(0,0,0,0.05)',
     backgroundColor: 'white',
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
   footerTab: {
     alignItems: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
+    position: 'relative',
+  },
+  activeTabIndicator: {
+    position: 'absolute',
+    top: -14,
+    width: 24,
+    height: 3,
+    backgroundColor: COLORS.primary,
+    borderRadius: 1.5,
   },
   footerTabText: {
     fontSize: 12,
-    marginTop: 2,
+    marginTop: 4,
     color: textColor.secondary,
   },
   footerTabTextActive: {
     fontSize: 12,
-    marginTop: 2,
+    marginTop: 4,
     color: textColor.primary,
     fontWeight: '600',
   },

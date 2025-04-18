@@ -5,7 +5,8 @@ const COLORS = {
   cardBackground: "#FFFFFF",        
   
   
-  primary: "#BDB1FF",                // Purple
+  primary: "#BDB1FF",    
+  primary2: "#eeecfa",            // Purple
   primaryLight: "#C5CAE9",           
   primaryDark: "#303F9F",           
   

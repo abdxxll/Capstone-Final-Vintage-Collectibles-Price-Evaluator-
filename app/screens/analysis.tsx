@@ -163,11 +163,11 @@ export default function AIAnalysis() {
       case "estimate":
         return (
           <>
-            <SectionCard title="ESTIMATED PRICE RANGE">
+            <SectionCard title="Estimated Price Range">
               <Text style={styles.priceValue}>{analysis.estimated_price_range}</Text>
             </SectionCard>
             
-            <SectionCard title="CONFIDENCE LEVEL">
+            <SectionCard title="Confidence Level">
               {renderConfidenceLevel()}
             </SectionCard>
           </>
@@ -175,7 +175,7 @@ export default function AIAnalysis() {
       
       case "factors":
         return (
-          <SectionCard title="KEY FACTORS">
+          <SectionCard title="Key Factors">
             {analysis.key_factors.map((factor, index) => (
               <View key={index} style={styles.factorItem}>
                 <View style={styles.factorBullet}>
@@ -189,7 +189,7 @@ export default function AIAnalysis() {
       
       case "reasoning":
         return (
-          <SectionCard title="REASONING">
+          <SectionCard title="Reasoning">
             {analysis.reasoning.map((reason, index) => (
               <View key={index} style={styles.reasoningItem}>
                 <Text style={styles.reasoningText}>

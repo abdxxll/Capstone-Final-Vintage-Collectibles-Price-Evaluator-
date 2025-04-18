@@ -3,14 +3,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import {
-    Animated,
-    Dimensions,
-    Platform,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Animated,
+  Dimensions,
+  Platform,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
 import { COLORS, textColor } from "../../styles/theme";
 
@@ -81,15 +81,16 @@ export default function ScanResult() {
     );
   };
 
-  const renderPrice = () => {
-    const price = rewindPrice 
-      ? `$${Number(rewindPrice).toLocaleString()}` 
-      : "Price on request";
-    
-    return (
-      <View style={styles.headerButtonsContainer}>
+ // Modified renderActionButtons function to use a SectionCard format
+const renderActionButtons = () => {
+  const price = rewindPrice 
+    ? `$${Number(rewindPrice).toLocaleString()}` 
+    : "Price on request";
+  
+  return (
+    <View style={styles.actionButtonsContainer}>
+      <SectionCard title="Estimated Price">
         <TouchableOpacity
-          style={styles.priceButton}
           onPress={() =>
             router.push({
               pathname: "/screens/source",
@@ -97,29 +98,15 @@ export default function ScanResult() {
             })
           }
         >
-          <Text style={styles.priceText}>{price}</Text>
-          <Ionicons name="information-circle-outline" size={18} color={textColor.primary} style={styles.infoIcon} />
+          <View style={styles.priceContainer}>
+            <Text style={styles.priceValue}>{price}</Text>
+            <Ionicons name="information-circle-outline" size={20} color={COLORS.accent1} style={styles.infoIcon} />
+          </View>
         </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.aiAnalysisButton}
-          onPress={() =>
-            router.push({
-              pathname: "/screens/ai-analysis",
-              params: { 
-                scanId,
-                itemName,
-                imageUrl: imageUri
-              }
-            })
-          }
-        >
-          <Ionicons name="analytics-outline" size={18} color={textColor.primary} style={styles.infoIcon} />
-          <Text style={styles.aiAnalysisText}>AI Analysis</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  };
+      </SectionCard>
+    </View>
+  );
+};
 
   const renderTabs = () => {
     return (
@@ -332,6 +319,21 @@ export default function ScanResult() {
           >
             {itemName || "Untitled Item"}
           </Animated.Text>
+          <TouchableOpacity 
+            style={styles.aiQuickButton}
+            onPress={() =>
+              router.push({
+                pathname: "/screens/analysis",
+                params: { 
+                  scanId,
+                  itemName,
+                  imageUrl: imageUri
+                }
+              })
+            }
+          >
+            <Ionicons name="analytics" size={22} color="white" />
+          </TouchableOpacity>
         </View>
       </Animated.View>
       
@@ -350,8 +352,8 @@ export default function ScanResult() {
             {itemName || "Untitled Item"}
           </Text>
           
-          {/* Price */}
-          {renderPrice()}
+          {/* Action Buttons */}
+          {renderActionButtons()}
           
           {/* Tabs Navigation */}
           {renderTabs()}
@@ -360,10 +362,30 @@ export default function ScanResult() {
           {renderTabContent()}
         </View>
         
-        {/* Confirm Button */}
-        <TouchableOpacity style={styles.confirmBtn} onPress={() => router.back()}>
-          <Text style={styles.confirmText}>Back to Scanner</Text>
-        </TouchableOpacity>
+        {/* Bottom Buttons */}
+        <View style={styles.bottomButtonsContainer}>
+          <TouchableOpacity 
+            style={styles.aiFullButton}
+            onPress={() =>
+              router.push({
+                pathname: "/screens/analysis",
+                params: { 
+                  scanId,
+                  itemName,
+                  imageUrl: imageUri
+                }
+              })
+            }
+          >
+            <Ionicons name="analytics" size={22} color="#fff" style={styles.buttonIcon} />
+            <Text style={styles.aiFullButtonText}>Full AI Analysis</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.backToScannerBtn} onPress={() => router.back()}>
+            <Ionicons name="scan-outline" size={22} color="#fff" style={styles.buttonIcon} />
+            <Text style={styles.backToScannerText}>Back to Scanner</Text>
+          </TouchableOpacity>
+        </View>
       </Animated.ScrollView>
     </View>
   );
@@ -406,11 +428,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     flex: 1,
     textAlign: 'center',
-    marginRight: 40, // To balance the back button
   },
   navBar: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     position: 'absolute',
     top: Platform.OS === 'ios' ? 40 : 20,
     left: 0,
@@ -425,6 +447,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  aiQuickButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.accent1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
   contentContainer: {
     paddingTop: HEADER_MAX_HEIGHT,
     paddingBottom: 40,
@@ -438,40 +473,68 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingHorizontal: 20,
   },
-  headerButtonsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
+  // Additional styles to add
+actionButtonsContainer: {
+  marginBottom: 20,
+},
+priceContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+},
+priceValue: {
+  fontSize: 24,
+  fontWeight: 'bold',
+  color: textColor.primary,
+  textAlign: 'center',
+},
+
   priceButton: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.primary,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  aiAnalysisButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.secondary,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 14, // Slightly taller
+    borderRadius: 10,
+    width: '90%', // Wider button
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2, // Slightly more visible shadow
+    shadowRadius: 4,
+    elevation: 4, // More elevation on Android
   },
   priceText: {
     color: textColor.primary,
-    fontSize: 16,
+    fontSize: 20, // Larger font size
     fontWeight: 'bold',
   },
+  aiAnalysisButton: {
+    backgroundColor: COLORS.accent1,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    width: '80%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  aiAnalysisButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+ 
   aiAnalysisText: {
-    color: textColor.primary,
-    fontSize: 16,
+    color: '#fff',
+    fontSize: 18,
     fontWeight: 'bold',
-    marginLeft: 4,
+    marginLeft: 8,
   },
   infoIcon: {
-    marginLeft: 4,
+    marginLeft: 8,
   },
   tabContainer: {
     flexDirection: 'row',
@@ -576,13 +639,32 @@ const styles = StyleSheet.create({
     color: textColor.primary,
     lineHeight: 22,
   },
-  confirmBtn: {
+  bottomButtonsContainer: {
+    marginTop: 20,
+    gap: 12,
+  },
+  aiFullButton: {
+    backgroundColor: COLORS.accent1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  backToScannerBtn: {
     backgroundColor: "#001F2D",
     paddingVertical: 16,
     borderRadius: 12,
     width: "100%",
     alignItems: "center",
-    marginTop: 16,
+    justifyContent: 'center',
+    flexDirection: 'row',
     marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -590,9 +672,17 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 5,
   },
-  confirmText: {
+  aiFullButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  backToScannerText: {
     color: "white",
     fontWeight: "bold",
     fontSize: 16,
+  },
+  buttonIcon: {
+    marginRight: 8,
   },
 });
