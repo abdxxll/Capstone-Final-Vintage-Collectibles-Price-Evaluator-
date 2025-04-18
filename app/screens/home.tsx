@@ -5,6 +5,7 @@ import React, { useEffect, useRef } from "react";
 import {
   Animated,
   Dimensions,
+  Image,
   Platform,
   SafeAreaView,
   StatusBar,
@@ -101,8 +102,12 @@ const HomeScreen = () => {
 
       {/* Header */}
       <View style={styles.header}>
-        <View style={styles.logoContainer}>
-          <Text style={styles.logoText}>Capstone</Text>
+      <View style={styles.logoContainer}>
+          <Image 
+            source={require('../assets/images/CAPSTONE.png')} 
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
           {/* <Text style={styles.tagline}>Scan items and discover their value</Text> */}
         </View>
         <TouchableOpacity
@@ -263,6 +268,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: textColor.secondary,
     marginTop: 2,
+  },
+  logoImage: {
+    height: 50,
+    width: 50,
+   
   },
   profileButton: {
     backgroundColor: 'rgba(0,0,0,0.04)',
