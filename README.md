@@ -19,9 +19,13 @@
 
 The antique and collectibles market is worth over $200 billion globally, yet most people have no way to accurately assess the value of items they own or encounter. Traditional appraisals are expensive, time-consuming, and often inaccessible. Plutus democratizes this process by putting professional-grade valuation tools directly in users' pockets.
 
-## Supporting Documents 
+## 📂 Supporting Materials
 
-### 
+For a deeper look into the project beyond the codebase:
+
+- [📑 Final Report](docs/Final%20Report%20-%20Capstone%20Final.pdf) – Comprehensive write-up detailing the methodology, data pipeline, modeling approach, and evaluation.
+- [🎤 Stakeholder Presentation](docs/Capstone%20Stakeholder%20Presentation.pdf) – Slide deck presented to stakeholders, highlighting business value, technical solution, and next steps.
+- [🖼️ Project Poster](docs/Capstone%20Final%20Poster.pdf) – One-page visual summary of the project for quick understanding.
 
 ## ✨ Key Features
 
